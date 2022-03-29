@@ -80,7 +80,7 @@ int main()
     std::string userInput;
     ConfigureMainMenu(menu);
 
-    std::cout << "VideohubRouter Commandline Interface\nVideohubRouter Commandline Interface\n\n" << std::endl;
+    std::cout << "~~~~VideohubRouter Commandline Interface\nVideohubRouter Commandline Interface~~~~\n\n" << std::endl;
 
     while (!quit) {
         PrintMenu(menu);
