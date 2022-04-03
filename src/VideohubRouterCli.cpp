@@ -70,7 +70,7 @@ int AddRouterToList(VideohubRouter &newRouter) {
 
 
 // Menu
-MenuOption AddEntryToMenu(int number, std::string name,
+MenuOption AddMenuEntry(int number, std::string name,
     std::string description, MenuFunction method) {
 
     MenuOption newOption{
@@ -84,17 +84,17 @@ MenuOption AddEntryToMenu(int number, std::string name,
 }
 
 //Add Menuentries to List of options
-void ConfigureMainMenu() {
+void ConfigureMenu() {
 
-    m_menu.push_back(AddEntryToMenu(0, "quit", "Quit application.", QuitApplication));
-    m_menu.push_back(AddEntryToMenu(1, "Add Router", "Add a new router to list of Routers.", AddNewRouter));
-    m_menu.push_back(AddEntryToMenu(2, "Remove Router", "Remove a Router from the routers list.", RemoveRouter));
-    m_menu.push_back(AddEntryToMenu(4, "Select Router", "select a Router from list of added devices.", SelectRouter));
-    m_menu.push_back(AddEntryToMenu(5, "Print data", "print all data of selected device.", PrintData));
-    m_menu.push_back(AddEntryToMenu(6, "Set new route", "set new route on selected device.", SetNewRoute));
-    m_menu.push_back(AddEntryToMenu(7, "Set Source Name", "set a new name on a source of selected device.", SetSourceName));
-    m_menu.push_back(AddEntryToMenu(8, "Set Destination name", "Set a new name on a destination of selected device.", SetDestinationName));
-    m_menu.push_back(AddEntryToMenu(9, "Set Ip Address", "Set new Ip Address on selected device", ChangeIpAddress));
+    m_menu.push_back(AddMenuEntry(0, "quit", "Quit application.", QuitApplication));
+    m_menu.push_back(AddMenuEntry(1, "Add Router", "Add a new router to list of Routers.", AddNewRouter));
+    m_menu.push_back(AddMenuEntry(2, "Remove Router", "Remove a Router from the routers list.", RemoveRouter));
+    m_menu.push_back(AddMenuEntry(4, "Select Router", "select a Router from list of added devices.", SelectRouter));
+    m_menu.push_back(AddMenuEntry(5, "Print data", "print all data of selected device.", PrintData));
+    m_menu.push_back(AddMenuEntry(6, "Set new route", "set new route on selected device.", SetNewRoute));
+    m_menu.push_back(AddMenuEntry(7, "Set Source Name", "set a new name on a source of selected device.", SetSourceName));
+    m_menu.push_back(AddMenuEntry(8, "Set Destination name", "Set a new name on a destination of selected device.", SetDestinationName));
+    m_menu.push_back(AddMenuEntry(9, "Set Ip Address", "Set new Ip Address on selected device", ChangeIpAddress));
 }
 
 //present possible options to user
