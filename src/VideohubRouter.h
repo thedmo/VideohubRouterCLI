@@ -1,3 +1,6 @@
+#ifndef VideoRouter
+#define VideoRouter
+
 #include <vector>
 
 #include "TelnetClient.h"
@@ -16,9 +19,11 @@ struct Destination{
 class VideohubRouter {
 
 public:
-    VideohubRouter() = delete;
+    VideohubRouter();
     VideohubRouter(std::string ip);
     ~VideohubRouter();
+
+    int SetIpAddress(std::string newAddress);
 
     int GetStatus(std::string &dataDump);
     
@@ -54,3 +59,5 @@ private:
     std::string SetName();
     int SetChannelCount();
 } ;
+
+#endif //VideoRouter

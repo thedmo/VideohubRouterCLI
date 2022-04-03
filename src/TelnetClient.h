@@ -1,6 +1,9 @@
-#include <WS2tcpip.h>
+#ifndef TelClient
+#define TelClient
+
 #include <iostream>
 #include <string>
+#include <ws2tcpip.h>
 
 class TelnetClient{
     public:
@@ -9,16 +12,17 @@ class TelnetClient{
     ~TelnetClient();
 
     int SendMsgToServer(std::string, std::string &response);
-
+    int ChangeIpAddress(std::string newAddress);
 
     private:
-    std::string ipAddress;
+    std::string m_ipAddress;
     int portNum;
 
-    std::string response;
+    std::string m_response;
     char buf[4096];
     SOCKET sock;
 
     int OpenConnection();
     int CloseConnection();
 };
+#endif //TelClient

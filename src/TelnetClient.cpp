@@ -1,18 +1,18 @@
 #include "TelnetClient.h"
 
 TelnetClient::TelnetClient(std::string ip, int port)
-    : ipAddress(ip), portNum(port) {}
+    : m_ipAddress(ip), portNum(port) {}
 
 TelnetClient::~TelnetClient() { CloseConnection(); }
 
-int TelnetClient::SendMsgToServer(std::string msg, std::string &response) {
+int TelnetClient::SendMsgToServer(std::string msg, std::string &m_response) {
     int cResult;
 
     cResult = OpenConnection();
 
     if (cResult != 0) {
-        std::cerr << "could not open Connection to Server: " << ipAddress
-                  << std::endl;
+        std::cerr << "could not open Connection to Server: " << m_ipAddress
+            << std::endl;
         return -1;
     }
 
@@ -21,13 +21,27 @@ int TelnetClient::SendMsgToServer(std::string msg, std::string &response) {
     if (sendResult != SOCKET_ERROR) {
         ZeroMemory(buf, 4096);
         int bytesReceived = recv(sock, buf, 4096, 0);
-        response = std::string(buf, 0, bytesReceived);
+        m_response = std::string(buf, 0, bytesReceived);
 
         if (bytesReceived > 0) {
-            std::cout << "SERVER> " << response << std::endl;
+            std::cout << "SERVER> " << m_response << std::endl;
         }
     }
 
+    return 0;
+}
+
+int TelnetClient::ChangeIpAddress(std::string newAddress) {
+    sockaddr_in newIp;
+    newIp.sin_family = AF_INET;
+    int ipResult = inet_pton(AF_INET, newAddress.c_str(), &newIp.sin_addr);
+
+    if (ipResult == 0) {
+        return -1;
+    }
+
+    std::cout << "New Ip: " << newAddress << std::endl;
+    m_ipAddress = newAddress;
     return 0;
 }
 
@@ -44,7 +58,7 @@ int TelnetClient::OpenConnection() {
     sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock == INVALID_SOCKET) {
         std::cerr << "Can't Create socket, ERR #" << WSAGetLastError()
-                  << std::endl;
+            << std::endl;
         WSACleanup();
         return -1;
     }
@@ -52,17 +66,17 @@ int TelnetClient::OpenConnection() {
     sockaddr_in hint;
     hint.sin_family = AF_INET;
     hint.sin_port = htons(portNum);
-    int ipresult = inet_pton(AF_INET, ipAddress.c_str(), &hint.sin_addr);
+    int ipresult = inet_pton(AF_INET, m_ipAddress.c_str(), &hint.sin_addr);
     if (ipresult == 0) {
         std::cerr << "Format of Ip Wrong! Aborting. Err #: "
-                  << WSAGetLastError() << std::endl;
+            << WSAGetLastError() << std::endl;
         return -1;
     }
 
     int connResult = connect(sock, (sockaddr *)&hint, sizeof(hint));
     if (connResult == SOCKET_ERROR) {
         std::cerr << "Can't connect to server,m Err #" << WSAGetLastError()
-                  << std::endl;
+            << std::endl;
         closesocket(sock);
         WSACleanup();
         return -1;
