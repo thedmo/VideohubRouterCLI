@@ -6,7 +6,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ../bin)
 include(CTest)
 enable_testing()
 
-add_library(VideohubRouterLib TelnetClient.cpp VideohubRouter.cpp)
+add_library(VideohubRouterLib TelnetClient.cpp VideohubRouter.cpp VideohubRouterCli.cpp)
 
 if(WIN32)
   target_link_libraries(VideohubRouterLib wsock32 ws2_32)
