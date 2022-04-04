@@ -45,6 +45,10 @@ int TelnetClient::ChangeIpAddress(std::string newAddress) {
     return 0;
 }
 
+std::string TelnetClient::GetIp(){
+    return m_ipAddress;
+}
+
 int TelnetClient::OpenConnection() {
     WSAData data;
 

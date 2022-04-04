@@ -14,6 +14,8 @@ class TelnetClient{
     int SendMsgToServer(std::string, std::string &response);
     int ChangeIpAddress(std::string newAddress);
 
+    std::string GetIp();
+
     private:
     std::string m_ipAddress;
     int portNum;
