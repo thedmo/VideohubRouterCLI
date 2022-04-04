@@ -29,6 +29,9 @@ int VideohubRouter::SetIpAddress(std::string newAddress) {
     return 0;
 }
 
+std::string VideohubRouter::GetIp(){
+    return tClient->GetIp();
+}
 
 int VideohubRouter::GetStatus(std::string &dataDump) {
     int cResult = tClient->SendMsgToServer("", dataDump);
