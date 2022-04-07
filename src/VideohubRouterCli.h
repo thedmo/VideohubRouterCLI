@@ -20,6 +20,8 @@ void SetDestinationName();
 void ChangeIpAddress();
 
 static std::vector<VideohubRouter *> m_routers;
+static VideohubRouter* selected_router;
+
 void AddRouterToList(VideohubRouter *newRouter);
 int GetRouterList();
 
