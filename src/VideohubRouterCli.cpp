@@ -1,6 +1,8 @@
 
 #include "VideohubRouterCli.h"
 
+
+// METHODS
 void AddNewRouter() {
     VideohubRouter *newRouter = new VideohubRouter();
 
@@ -77,19 +79,22 @@ void AddRouterToList(VideohubRouter *newRouter) {
     m_routers.push_back(newRouter);
 }
 
-void ConfigureMenu(Menu *menu) {
 
-    menu->AddEntry("ar", "Add a new router to list of Routers.", AddNewRouter);
-    menu->AddEntry("sr", "select a Router from list of added devices.", SelectRouter);
+//SET UP MENU
+void ConfigureMenu(Menu *menu) {
+    menu->AddEntry("a", "Add a new router to list of Routers.", AddNewRouter);
+    menu->AddEntry("s", "select a Router from list of added devices.", SelectRouter);
     menu->AddEntry("ip", "Set new Ip Address on selected device", ChangeIpAddress);
-    menu->AddEntry("print", "print all data of selected device.", PrintData);
-    menu->AddEntry("route", "set new route on selected device.", SetNewRoute);
-    menu->AddEntry("take", "Take all set routes at once", SetNewRoute);
+    menu->AddEntry("p", "print all data of selected device.", PrintData);
+    menu->AddEntry("r", "set new route on selected device.", SetNewRoute);
+    menu->AddEntry("t", "Take all set routes at once", SetNewRoute);
     menu->AddEntry("ns", "set a new name on a source of selected device.", SetSourceName);
     menu->AddEntry("nd", "Set a new name on a destination of selected device.", SetDestinationName);
-    menu->AddEntry("rr", "Remove a Router from the routers list.", RemoveRouter);
+    menu->AddEntry("r", "Remove a Router from the routers list.", RemoveRouter);
 }
 
+
+//ENTER APPLICATION
 namespace vhr {
 void StartCli() {
     std::cout << "~~~~VideohubRouter Commandline Interface\nVideohubRouter "
