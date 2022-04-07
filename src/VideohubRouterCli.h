@@ -5,44 +5,28 @@
 #include <iostream>
 
 #include "VideohubRouter.h"
-
-using MenuFunction = std::function<int()>;
-
-struct MenuOption {
-    int number;
-    std::string name;
-    std::string description;
-    MenuFunction method;
-};
-
-using Menu = std::vector<MenuOption>;
-static Menu m_menu;
+#include "Menu.h"
 
 // Menu Methods
-int QuitApplication();
-int AddNewRouter();
-int RemoveRouter();
-int SelectRouter();
-int PrintData();
-int SetNewRoute();
-int TakeRoutes();
-int SetSourceName();
-int SetDestinationName();
-int ChangeIpAddress();
+void QuitApplication();
+void AddNewRouter();
+void RemoveRouter();
+void SelectRouter();
+void PrintData();
+void SetNewRoute();
+void TakeRoutes();
+void SetSourceName();
+void SetDestinationName();
+void ChangeIpAddress();
 
 static std::vector<VideohubRouter *> m_routers;
-int AddRouterToList(VideohubRouter *newRouter);
+void AddRouterToList(VideohubRouter *newRouter);
 int GetRouterList();
 
-MenuOption AddMenuEntry(int number, std::string name, std::string description,
-                        MenuFunction method);
-
 void ConfigureMenu();
-void PrintMenu();
-bool EvaluateUserInput(std::string input);
 
 namespace vhr {
-void MainLoop();
+void StartCli();
 }
 
 #endif  // VideoRouterCli

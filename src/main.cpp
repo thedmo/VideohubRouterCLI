@@ -1,6 +1,6 @@
 #include "VideohubRouterCli.h"
 
 int main() {
-    vhr::MainLoop();
+    vhr::StartCli();
     return 0;
 }
