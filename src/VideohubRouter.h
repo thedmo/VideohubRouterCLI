@@ -47,7 +47,7 @@ private:
     std::vector<std::string> * m_dataSet;
     void FillDataSet(const std::string &dataString);
 
-    std::string m_name;
+    std::string m_name = "not set";
     u_int channelCount;
     std::vector<Source> sources;
     std::vector<Destination> destinations;

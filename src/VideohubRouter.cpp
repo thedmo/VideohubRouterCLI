@@ -43,6 +43,10 @@ int VideohubRouter::GetStatus(std::string &dataDump) {
     return 0;
 }
 
+std::string VideohubRouter::GetName(){
+    return m_name;
+}
+
 void VideohubRouter::FillDataSet(const std::string &dataString) {
     m_dataSet = new std::vector<std::string>();
     std::string line = "";
