@@ -24,10 +24,29 @@ void RemoveRouter() {
 }
 
 void SelectRouter() {
+    if (m_routers.size() <= 0) {
+        std::cerr << "no router in list. Aborting." << std::endl;
+        return;
+    }
+
     std::cout << "Available Devices: " << std::endl;
     for (size_t i = 0; i < m_routers.size(); i++) {
-        std::cout << i << ": " << m_routers[i]->GetIp() << std::endl;
+        std::cout << i << ": " << m_routers[i]->GetIp() << ", " << m_routers[i]->GetName() << std::endl;
     }
+
+    std::cout << "Type in number of router to select: ";
+    std::string input;
+    std::cin >> input;
+    int inputChoice;
+
+    try { inputChoice = std::stoi(input); }
+    catch (const std::exception &e) {
+        std::cerr << "no valid input." << e.what() << " aborting.\n";
+        return;
+    }
+
+    selected_router = m_routers.at(inputChoice);
+    std::cout << "Selected: " << selected_router->GetIp() << ", " << selected_router->GetName() << std::endl;
 }
 
 void PrintData() {
@@ -64,7 +83,7 @@ void ConfigureMenu(Menu *menu) {
     menu->AddEntry("sr", "select a Router from list of added devices.", SelectRouter);
     menu->AddEntry("ip", "Set new Ip Address on selected device", ChangeIpAddress);
     menu->AddEntry("print", "print all data of selected device.", PrintData);
-    menu->AddEntry("Set new route", "set new route on selected device.", SetNewRoute);
+    menu->AddEntry("route", "set new route on selected device.", SetNewRoute);
     menu->AddEntry("take", "Take all set routes at once", SetNewRoute);
     menu->AddEntry("ns", "set a new name on a source of selected device.", SetSourceName);
     menu->AddEntry("nd", "Set a new name on a destination of selected device.", SetDestinationName);
@@ -75,7 +94,6 @@ namespace vhr {
 void StartCli() {
     std::cout << "~~~~VideohubRouter Commandline Interface\nVideohubRouter "
         "Commandline Interface~~~~\n\n";
-
 
     Menu *mainMenu = new Menu("Cli");
     ConfigureMenu(mainMenu);
