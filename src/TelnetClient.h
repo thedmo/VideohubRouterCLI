@@ -20,7 +20,7 @@ class TelnetClient{
     std::string m_ipAddress;
     int portNum;
 
-    std::string m_response;
+    std::string* m_response;
     char buf[4096];
     SOCKET sock;
 
