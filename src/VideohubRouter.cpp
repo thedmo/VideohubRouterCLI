@@ -4,13 +4,9 @@
 #include <sstream>
 
 VideohubRouter::VideohubRouter() {
-
     tClient = new TelnetClient(m_ipAdress, m_port);
-}
-
-VideohubRouter::VideohubRouter(std::string ip) : m_ipAdress(ip) {
-    tClient = new TelnetClient(m_ipAdress, m_port);
-    GetStatus(*m_dataDump);
+    m_dataDump = new std::string;
+    m_dataSet = new std::vector<std::string>;
 }
 
 VideohubRouter::~VideohubRouter() {
@@ -26,42 +22,55 @@ int VideohubRouter::SetIpAddress(std::string newAddress) {
         return -1;
     }
 
+    GetStatus();
+
     return 0;
 }
 
-std::string VideohubRouter::GetIp(){
-    return tClient->GetIp();
-}
-
-int VideohubRouter::GetStatus(std::string &dataDump) {
-    int cResult = tClient->SendMsgToServer("", dataDump);
+int VideohubRouter::GetStatus() {
+    int cResult = tClient->SendMsgToServer("", *m_dataDump);
 
     if (cResult != 0) {
-        std::cerr << "could not connect to server. Aborting. Wrong Ip?" << std::endl;
+        std::cerr << "could not connect to server. No status data obtained"
+                  << std::endl;
         return -1;
     }
+
+    FillDataSet();
+
     return 0;
 }
 
-std::string VideohubRouter::GetName(){
-    return m_name;
-}
+std::string VideohubRouter::GetIp() { return tClient->GetIp(); }
 
-void VideohubRouter::FillDataSet(const std::string &dataString) {
+std::string VideohubRouter::GetName() { return m_name; }
+
+int VideohubRouter::FillDataSet() {
     m_dataSet = new std::vector<std::string>();
     std::string line = "";
 
-    while (std::getline(std::istringstream(dataString), line, '\n')) {
-        int i = 0;
-        m_dataSet->push_back("const line");
+    if (*m_dataDump == "") {
+        std::cerr << "no data available" << std::endl;
+        return -1;
     }
+
+    // TODO
+    // while (std::getline(std::istringstream(*m_dataDump), line, '\n')) {
+    //     int i = 0;
+    //     m_dataSet->push_back("const line");
+    // }
+    return 0;
 }
 
-void VideohubRouter::PrintData() {
+int VideohubRouter::PrintData() {
+    if (m_dataSet->empty()) {
+        std::cerr << "no data to be printed available." << std::endl;
+        return -1;
+    }
 
-    std::cout << "PrintData not properly functional" << std::endl;
+    for (auto line : *m_dataSet) {
+        std::cout << line << std::endl;
+    }
 
-    // for (auto line : *m_dataSet){
-    //     std::cout << line << std::endl;
-    // }
+    return 0;
 }

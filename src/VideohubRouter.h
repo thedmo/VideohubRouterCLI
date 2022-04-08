@@ -5,29 +5,28 @@
 
 #include "TelnetClient.h"
 
-struct Source{
+struct Source {
     std::string name;
     unsigned int channelNum;
 };
 
-struct Destination{
+struct Destination {
     std::string name;
     unsigned int channelNum;
-    Source* source;
+    Source *source;
 };
 
 class VideohubRouter {
-
-public:
+   public:
     VideohubRouter();
-    VideohubRouter(std::string ip);
+    // VideohubRouter(std::string ip);
     ~VideohubRouter();
 
     int SetIpAddress(std::string newAddress);
 
-    int GetStatus(std::string &dataDump);
-    
-    void PrintData();
+    int GetStatus();
+
+    int PrintData();
 
     int ChangeSourceName(int channel, std::string name);
     int ChangeDestinationName(int channel, std::string name);
@@ -38,14 +37,14 @@ public:
     std::string GetName();
     int SetNewIpAddress(std::string ip);
     std::string GetIp();
-    
-private:
+
+   private:
     std::string m_ipAdress = "127.0.0.1";
     int m_port = 9990;
 
-    std::string * m_dataDump;
-    std::vector<std::string> * m_dataSet;
-    void FillDataSet(const std::string &dataString);
+    std::string *m_dataDump;
+    std::vector<std::string> *m_dataSet;
+    int FillDataSet();
 
     std::string m_name = "name not set";
     u_int channelCount;
@@ -58,6 +57,6 @@ private:
     void FillDestination();
     std::string SetName();
     int SetChannelCount();
-} ;
+};
 
-#endif //VideoRouter
+#endif  // VideoRouter
