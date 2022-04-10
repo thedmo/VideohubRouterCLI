@@ -53,8 +53,8 @@ class VideohubRouter {
 
     TelnetClient *tClient;
 
-    void FillSources();
-    void FillDestination();
+    int FillSources();
+    int FillDestination();
     std::string SetName();
     int SetChannelCount();
 };
