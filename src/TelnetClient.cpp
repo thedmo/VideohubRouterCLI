@@ -5,7 +5,7 @@ TelnetClient::TelnetClient(std::string ip, int port)
 
 TelnetClient::~TelnetClient() { CloseConnection(); }
 
-int TelnetClient::SendMsgToServer(std::string msg, std::string &m_response) {
+int TelnetClient::SendMsgToServer(std::string msg, std::string *m_response) {
     int cResult;
 
     cResult = OpenConnection();
@@ -21,7 +21,8 @@ int TelnetClient::SendMsgToServer(std::string msg, std::string &m_response) {
     if (sendResult != SOCKET_ERROR) {
         ZeroMemory(buf, 4096);
         int bytesReceived = recv(sock, buf, 4096, 0);
-        m_response = std::string(buf, 0, bytesReceived);
+        std::string response = std::string(buf, 0, bytesReceived);
+        *m_response = response;
     }
 
     return 0;
