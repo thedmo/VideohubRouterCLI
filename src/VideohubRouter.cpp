@@ -1,6 +1,6 @@
 #include "VideohubRouter.h"
 
-// #include <algorithm>
+#include <algorithm>
 #include <iostream>
 // #include <iterator>
 #include <sstream>
@@ -8,7 +8,8 @@
 VideohubRouter::VideohubRouter() {
     tClient = new TelnetClient(m_ipAdress, m_port);
     m_dataDump = new std::string;
-    m_dataSet = new std::vector<std::string>;
+    ;
+    // m_dataSet.reserve(150);
 }
 
 VideohubRouter::~VideohubRouter() {
@@ -53,34 +54,57 @@ int VideohubRouter::FillDataSet() {
         return -1;
     }
 
-    FillSources();
-    FillDestination();
-
     std::stringstream stringStream(*m_dataDump);
     std::string line;
 
+    bool foundChannelCount = false;
     while (std::getline(stringStream, line, '\n')) {
-        m_dataSet->push_back(line);
+        m_dataSet.push_back(line);
+
+        // Get Channelcount
+        if (!foundChannelCount) {
+            if (line.find("Video inputs: ") != std::string::npos) {
+                std::string tempString;
+                std::vector<std::string> tempStrings;
+                std::stringstream ss(line);
+                while (std::getline(ss, tempString, ' ')) {
+                    tempStrings.push_back(tempString);
+                }
+                channelCount = std::stoi(tempStrings[2]);
+                std::cout << "Device has " << channelCount << " channels."
+                          << std::endl;
+                foundChannelCount = true;
+            }
+        }
     };
+
+    // std::cout << m_dataSet[7] << std::endl; // out of Range...
+
+    FillSources();
+    // FillDestination();
 
     return 0;
 }
 
 int VideohubRouter::FillSources() {
-    std::string target = "VIDEOHUB DEVICE:";
+    std::string target = "Video inputs:";
 
     std::string s_result;
 
     // TODO: Fix finding sources in Vector.
 
-    //     std::find(*m_dataSet->begin(), *m_dataSet->end(), &target);
+    std::vector<std::string>::iterator it =
+        std::find(m_dataSet.begin(), m_dataSet.end(), target);
+    int index = std::distance(m_dataSet.begin(), it);
 
-    // std::cout << s_result << std::endl;
+    if (index < m_dataSet.size()) s_result = m_dataSet.at(index);
 
     if (target != s_result) {
         std::cerr << "could not find sources in data" << std::endl;
         return -1;
     }
+
+    std::cout << s_result << std::endl;
 
     // Toto actual create Structs and populate Sources
 
@@ -94,12 +118,12 @@ int VideohubRouter::FillDestination() {
 }
 
 int VideohubRouter::PrintData() {
-    if (m_dataSet->empty()) {
+    if (m_dataSet.empty()) {
         std::cerr << "no data to be printed available." << std::endl;
         return -1;
     }
 
-    for (auto line : *m_dataSet) {
+    for (auto line : m_dataSet) {
         std::cout << line << std::endl;
     }
 

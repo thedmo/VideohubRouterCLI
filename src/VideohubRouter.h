@@ -43,7 +43,7 @@ class VideohubRouter {
     int m_port = 9990;
 
     std::string *m_dataDump;
-    std::vector<std::string> *m_dataSet;
+    std::vector<std::string> m_dataSet;
     int FillDataSet();
 
     std::string m_name = "name not set";
