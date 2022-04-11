@@ -24,7 +24,7 @@ class VideohubRouter {
 
     int SetIpAddress(std::string newAddress);
 
-    int GetStatus();
+    int GetData();
 
     int PrintData();
 

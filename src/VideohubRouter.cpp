@@ -25,12 +25,12 @@ int VideohubRouter::SetIpAddress(std::string newAddress) {
         return -1;
     }
 
-    GetStatus();
+    GetData();
 
     return 0;
 }
 
-int VideohubRouter::GetStatus() {
+int VideohubRouter::GetData() {
     int cResult = tClient->SendMsgToServer("", m_dataDump);
 
     if (cResult != 0) {
@@ -106,7 +106,7 @@ int VideohubRouter::FillSources() {
 
     std::cout << s_result << std::endl;
 
-    // Toto actual create Structs and populate Sources
+    // Todo actual create Structs and populate Sources
 
     return 0;
 }
