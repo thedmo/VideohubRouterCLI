@@ -8,14 +8,22 @@
 VideohubRouter::VideohubRouter() {
     tClient = new TelnetClient(m_ipAdress, m_port);
     m_dataDump = new std::string;
-    ;
-    // m_dataSet.reserve(150);
 }
 
 VideohubRouter::~VideohubRouter() {
     delete (tClient);
     tClient = nullptr;
     m_dataDump == nullptr;
+
+    for (auto item : sources) {
+        delete (item);
+        item = nullptr;
+    }
+
+    for (auto item : destinations) {
+        delete (item);
+        item = nullptr;
+    }
 }
 
 int VideohubRouter::SetIpAddress(std::string newAddress) {
@@ -76,7 +84,7 @@ int VideohubRouter::FillDataSet() {
                 foundChannelCount = true;
             }
         }
-    };
+    }
 
     // std::cout << m_dataSet[7] << std::endl; // out of Range...
 
@@ -87,24 +95,67 @@ int VideohubRouter::FillDataSet() {
 }
 
 int VideohubRouter::FillSources() {
-    std::string target = "Video inputs:";
+    // std::string target = "INPUT LABELS:";
+    std::string line;
+    std::string lineSubString;
+    std::vector<std::string> lineList;
+    std::string channelName;
 
-    std::string s_result;
+    bool inputLabelsBlock = false;
 
-    // TODO: Fix finding sources in Vector.
+    for (unsigned int i; i < m_dataSet.size(); ++i) {
+        // Look for Labels Block in Dataset
+        line = m_dataSet[i];
+        if (line.find("INPUT LABELS:") != std::string::npos) {
+            inputLabelsBlock = true;
+            continue;
+        } else if (line.find("OUTPUT LABELS:") != std::string::npos) {
+            inputLabelsBlock = false;
+            break;
+        }
 
-    std::vector<std::string>::iterator it =
-        std::find(m_dataSet.begin(), m_dataSet.end(), target);
-    int index = std::distance(m_dataSet.begin(), it);
+        // Set Labels
+        if (inputLabelsBlock && line != "") {
+            // Create Source Struct
+            Source* newSource = new Source();
 
-    if (index < m_dataSet.size()) s_result = m_dataSet.at(index);
+            std::stringstream lineStream(line);
 
-    if (target != s_result) {
-        std::cerr << "could not find sources in data" << std::endl;
-        return -1;
+            // Compile Input Label
+            while (std::getline(lineStream, lineSubString, ' ')) {
+                lineList.push_back(lineSubString);
+            }
+
+            //Set Channelnumber
+            newSource->channelNum = std::stoi(lineList[0]);
+
+            //Set Name
+            for (unsigned int j = 1; j < lineList.size(); ++j) {
+                channelName += lineList[j];
+                if (j < lineList.size() - 1) {
+                    channelName += ' ';
+                }
+            }
+            newSource->name = channelName;
+
+            lineList.clear();
+            channelName.clear();
+
+            sources.push_back(newSource);
+
+            std::cout << "added Source Struct: " << newSource->channelNum << " "
+                      << newSource->name << std::endl;
+        }
     }
 
-    std::cout << s_result << std::endl;
+    // if (index < m_dataSet.size()) s_result = m_dataSet.at(index);
+
+    // if (target != s_result) {
+    //     std::cerr << "could not find sources in data" << std::endl;
+    //     return -1;
+    // }
+
+    // std::cout << s_result << std::endl;
 
     // Todo actual create Structs and populate Sources
 

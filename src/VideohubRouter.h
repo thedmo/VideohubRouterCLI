@@ -48,8 +48,8 @@ class VideohubRouter {
 
     std::string m_name = "name not set";
     u_int channelCount;
-    std::vector<Source> sources;
-    std::vector<Destination> destinations;
+    std::vector<Source*> sources;
+    std::vector<Destination*> destinations;
 
     TelnetClient *tClient;
 
