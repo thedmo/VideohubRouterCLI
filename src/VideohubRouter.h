@@ -16,6 +16,12 @@ struct Destination {
     Source *source;
 };
 
+struct ChannelStruct {
+    std::string name;
+    unsigned int channelNum;
+    ChannelStruct *source = nullptr;
+};
+
 class VideohubRouter {
    public:
     VideohubRouter();
@@ -47,14 +53,14 @@ class VideohubRouter {
     int FillDataSet();
 
     std::string m_name = "name not set";
-    u_int channelCount;
-    std::vector<Source*> sources;
-    std::vector<Destination*> destinations;
+    u_int sourceCount;
+    std::vector<ChannelStruct*> sources;
+    u_int destinationCount;
+    std::vector<ChannelStruct*> destinations;
 
     TelnetClient *tClient;
 
-    int FillSources();
-    int FillDestination();
+    int SetChannelData();
     std::string SetName();
     int SetChannelCount();
 };

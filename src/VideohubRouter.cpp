@@ -43,9 +43,11 @@ int VideohubRouter::GetData() {
 
     if (cResult != 0) {
         std::cerr << "could not connect to server. No status data obtained"
-                  << std::endl;
+            << std::endl;
         return -1;
     }
+
+    // Todo call SetChannelData directly
 
     FillDataSet();
 
@@ -62,109 +64,136 @@ int VideohubRouter::FillDataSet() {
         return -1;
     }
 
-    std::stringstream stringStream(*m_dataDump);
-    std::string line;
-
-    bool foundChannelCount = false;
-    while (std::getline(stringStream, line, '\n')) {
-        m_dataSet.push_back(line);
-
-        // Get Channelcount
-        if (!foundChannelCount) {
-            if (line.find("Video inputs: ") != std::string::npos) {
-                std::string tempString;
-                std::vector<std::string> tempStrings;
-                std::stringstream ss(line);
-                while (std::getline(ss, tempString, ' ')) {
-                    tempStrings.push_back(tempString);
-                }
-                channelCount = std::stoi(tempStrings[2]);
-                std::cout << "Device has " << channelCount << " channels."
-                          << std::endl;
-                foundChannelCount = true;
-            }
-        }
-    }
-
-    // std::cout << m_dataSet[7] << std::endl; // out of Range...
-
-    FillSources();
-    // FillDestination();
+    // Todo call SetChannelData directly
+    SetChannelData();
 
     return 0;
 }
 
-int VideohubRouter::FillSources() {
-    // std::string target = "INPUT LABELS:";
+int VideohubRouter::SetChannelData() {
     std::string line;
     std::string lineSubString;
     std::vector<std::string> lineList;
-    std::string channelName;
 
-    bool inputLabelsBlock = false;
+    std::string block;
+    std::string inputLabels = "input labels";
+    std::string outputLabels = "output labels";
+    std::string routing = "routing";
+    std::string other = "other";
 
-    for (unsigned int i; i < m_dataSet.size(); ++i) {
-        // Look for Labels Block in Dataset
-        line = m_dataSet[i];
-        if (line.find("INPUT LABELS:") != std::string::npos) {
-            inputLabelsBlock = true;
-            continue;
-        } else if (line.find("OUTPUT LABELS:") != std::string::npos) {
-            inputLabelsBlock = false;
-            break;
-        }
+    bool foundChannelCount = false;
 
-        // Set Labels
-        if (inputLabelsBlock && line != "") {
-            // Create Source Struct
-            Source* newSource = new Source();
+    unsigned int currentChannelNumber;
+    ChannelStruct *currentStruct;
+    int currentStructNumber;
 
+    // std::string line;
+    std::stringstream dataStream(*m_dataDump);
+    while (std::getline(dataStream, line, '\n')) {
+
+        if (!line.empty()) {
+            m_dataSet.push_back(line);
+                // Get Line Contents
             std::stringstream lineStream(line);
-
-            // Compile Input Label
             while (std::getline(lineStream, lineSubString, ' ')) {
                 lineList.push_back(lineSubString);
             }
 
-            //Set Channelnumber
-            newSource->channelNum = std::stoi(lineList[0]);
+            // Look for Specific Blocks in Dataset
+            if (line.find("INPUT LABELS:") != std::string::npos) {
+                std::cout << "Inputs:" << std::endl;
+                block = inputLabels;
+                continue;
+            }
+            else if (line.find("OUTPUT LABELS:") != std::string::npos) {
+                std::cout << "Outputs:" << std::endl;
+                block = outputLabels;
+                continue;
+            }
+            else if (line.find("VIDEO OUTPUT ROUTING:") != std::string::npos) {
+                std::cout << "Routing:" << std::endl;
+                block = routing;
+                continue;
+            }
+            else if (line.find("VIDEO OUTPUT LOCKS:") != std::string::npos) {
+                block = other;
+            }
+            else if (line.find("PROTOCOL PREAMBLE:") != std::string::npos) {
+                block = other;
+            }
+            else if (line.find("VIDEOHUB DEVICE:") != std::string::npos) {
+                block = other;
+            }
+            else if (line.find("CONFIGURATION:") != std::string::npos) {
+                block = other;
+            }
 
-            //Set Name
-            for (unsigned int j = 1; j < lineList.size(); ++j) {
-                channelName += lineList[j];
-                if (j < lineList.size() - 1) {
-                    channelName += ' ';
+            // Create Structs
+            if (!foundChannelCount) {
+                if (line.find("Video inputs: ") != std::string::npos) {
+                    sourceCount = std::stoi(lineList[2]);
+                    std::cout << "Device has " << sourceCount << " input channels."
+                        << std::endl;
+
+                    for (size_t j = 0; j < sourceCount; j++)
+                    {
+                        currentStruct = new ChannelStruct;
+                        sources.push_back(currentStruct);
+                    }
+                }
+                else if (line.find("Video outputs: ") != std::string::npos) {
+                    destinationCount = std::stoi(lineList[2]);
+                    std::cout << "Device has " << destinationCount << " output channels."
+                        << std::endl;
+
+                    for (size_t j = 0; j < destinationCount; j++)
+                    {
+                        currentStruct = new ChannelStruct;
+                        destinations.push_back(currentStruct);
+                    }
+                    foundChannelCount = true;
                 }
             }
-            newSource->name = channelName;
 
-            lineList.clear();
-            channelName.clear();
+            // Set Labels
+            if (block == inputLabels || block == outputLabels) {
+                // Get Channelnumber
+                currentChannelNumber = std::stoi(lineList[0]);
 
-            sources.push_back(newSource);
+                if (block == inputLabels) {
+                    currentStruct = sources[currentChannelNumber];
+                }
+                else {
+                    currentStruct = destinations[currentChannelNumber];
+                }
 
-            std::cout << "added Source Struct: " << newSource->channelNum << " "
-                      << newSource->name << std::endl;
-        }
-    }
+                // Set Number
+                currentStruct->channelNum = currentChannelNumber;
+                // Set Name
+                for (unsigned int j = 1; j < lineList.size(); ++j) {
+                    currentStruct->name += lineList[j];
+                    if (j < lineList.size() - 1) {
+                        currentStruct->name += ' ';
+                    }
+                }
 
-    // if (index < m_dataSet.size()) s_result = m_dataSet.at(index);
+                std::cout << "Channel Label: " << currentStruct->name << std::endl;
+            }
 
-    // if (target != s_result) {
-    //     std::cerr << "could not find sources in data" << std::endl;
-    //     return -1;
-    // }
+            //Set routing
+            if (block == routing) {
+                // Get Channelnumber
+                currentChannelNumber = std::stoi(lineList[0]);
+                currentStruct = destinations[currentChannelNumber];
+                currentStructNumber = std::stoi(lineList[1]);
+                currentStruct->source = sources[currentStructNumber];
+                std::cout << currentStruct->channelNum << " " << currentStruct->name << " <-- " << currentStruct->source->channelNum << " " << currentStruct->source->name << std::endl;
+            }
+        } // if line.empty()
 
-    // std::cout << s_result << std::endl;
-
-    // Todo actual create Structs and populate Sources
-
-    return 0;
-}
-
-int VideohubRouter::FillDestination() {
-    // Toto actual create Structs and populate Destinations
-
+        lineList.clear();
+        currentStruct = nullptr;
+    } //for loop
     return 0;
 }
 
