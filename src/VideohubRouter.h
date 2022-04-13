@@ -5,17 +5,6 @@
 
 #include "TelnetClient.h"
 
-struct Source {
-    std::string name;
-    unsigned int channelNum;
-};
-
-struct Destination {
-    std::string name;
-    unsigned int channelNum;
-    Source *source;
-};
-
 struct ChannelStruct {
     std::string name;
     unsigned int channelNum;
@@ -50,7 +39,6 @@ class VideohubRouter {
 
     std::string *m_dataDump;
     std::vector<std::string> m_dataSet;
-    int FillDataSet();
 
     std::string m_name = "name not set";
     u_int sourceCount;
