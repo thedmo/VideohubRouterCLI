@@ -49,7 +49,7 @@ int VideohubRouter::GetData() {
 
     // Todo call SetChannelData directly
 
-    FillDataSet();
+    SetChannelData();
 
     return 0;
 }
@@ -58,19 +58,13 @@ std::string VideohubRouter::GetIp() { return tClient->GetIp(); }
 
 std::string VideohubRouter::GetName() { return m_name; }
 
-int VideohubRouter::FillDataSet() {
+int VideohubRouter::SetChannelData() {
+
     if (*m_dataDump == "") {
         std::cerr << "no data available" << std::endl;
         return -1;
     }
 
-    // Todo call SetChannelData directly
-    SetChannelData();
-
-    return 0;
-}
-
-int VideohubRouter::SetChannelData() {
     std::string line;
     std::string lineSubString;
     std::vector<std::string> lineList;
@@ -194,6 +188,24 @@ int VideohubRouter::SetChannelData() {
         lineList.clear();
         currentStruct = nullptr;
     } //for loop
+    return 0;
+}
+int VideohubRouter::SetRoute(int destination, int source){
+    if (destination >= destinationCount)
+    {
+        return -1;
+    } else if (source >= sourceCount)
+    {
+        return -1;
+    }
+    
+
+
+    ChannelStruct * currentDest = destinations[destination];
+    ChannelStruct * currentSrc = sources[source];
+
+
+
     return 0;
 }
 
