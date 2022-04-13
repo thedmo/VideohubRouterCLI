@@ -43,7 +43,7 @@ int VideohubRouter::GetData() {
 
     if (cResult != 0) {
         std::cerr << "could not connect to server. No status data obtained"
-            << std::endl;
+                  << std::endl;
         return -1;
     }
 
@@ -59,7 +59,6 @@ std::string VideohubRouter::GetIp() { return tClient->GetIp(); }
 std::string VideohubRouter::GetName() { return m_name; }
 
 int VideohubRouter::SetChannelData() {
-
     if (*m_dataDump == "") {
         std::cerr << "no data available" << std::endl;
         return -1;
@@ -84,10 +83,9 @@ int VideohubRouter::SetChannelData() {
     // std::string line;
     std::stringstream dataStream(*m_dataDump);
     while (std::getline(dataStream, line, '\n')) {
-
         if (!line.empty()) {
             m_dataSet.push_back(line);
-                // Get Line Contents
+            // Get Line Contents
             std::stringstream lineStream(line);
             while (std::getline(lineStream, lineSubString, ' ')) {
                 lineList.push_back(lineSubString);
@@ -98,27 +96,22 @@ int VideohubRouter::SetChannelData() {
                 std::cout << "Inputs:" << std::endl;
                 block = inputLabels;
                 continue;
-            }
-            else if (line.find("OUTPUT LABELS:") != std::string::npos) {
+            } else if (line.find("OUTPUT LABELS:") != std::string::npos) {
                 std::cout << "Outputs:" << std::endl;
                 block = outputLabels;
                 continue;
-            }
-            else if (line.find("VIDEO OUTPUT ROUTING:") != std::string::npos) {
+            } else if (line.find("VIDEO OUTPUT ROUTING:") !=
+                       std::string::npos) {
                 std::cout << "Routing:" << std::endl;
                 block = routing;
                 continue;
-            }
-            else if (line.find("VIDEO OUTPUT LOCKS:") != std::string::npos) {
+            } else if (line.find("VIDEO OUTPUT LOCKS:") != std::string::npos) {
                 block = other;
-            }
-            else if (line.find("PROTOCOL PREAMBLE:") != std::string::npos) {
+            } else if (line.find("PROTOCOL PREAMBLE:") != std::string::npos) {
                 block = other;
-            }
-            else if (line.find("VIDEOHUB DEVICE:") != std::string::npos) {
+            } else if (line.find("VIDEOHUB DEVICE:") != std::string::npos) {
                 block = other;
-            }
-            else if (line.find("CONFIGURATION:") != std::string::npos) {
+            } else if (line.find("CONFIGURATION:") != std::string::npos) {
                 block = other;
             }
 
@@ -126,22 +119,19 @@ int VideohubRouter::SetChannelData() {
             if (!foundChannelCount) {
                 if (line.find("Video inputs: ") != std::string::npos) {
                     sourceCount = std::stoi(lineList[2]);
-                    std::cout << "Device has " << sourceCount << " input channels."
-                        << std::endl;
+                    std::cout << "Device has " << sourceCount
+                              << " input channels." << std::endl;
 
-                    for (size_t j = 0; j < sourceCount; j++)
-                    {
+                    for (size_t j = 0; j < sourceCount; j++) {
                         currentStruct = new ChannelStruct;
                         sources.push_back(currentStruct);
                     }
-                }
-                else if (line.find("Video outputs: ") != std::string::npos) {
+                } else if (line.find("Video outputs: ") != std::string::npos) {
                     destinationCount = std::stoi(lineList[2]);
-                    std::cout << "Device has " << destinationCount << " output channels."
-                        << std::endl;
+                    std::cout << "Device has " << destinationCount
+                              << " output channels." << std::endl;
 
-                    for (size_t j = 0; j < destinationCount; j++)
-                    {
+                    for (size_t j = 0; j < destinationCount; j++) {
                         currentStruct = new ChannelStruct;
                         destinations.push_back(currentStruct);
                     }
@@ -156,8 +146,7 @@ int VideohubRouter::SetChannelData() {
 
                 if (block == inputLabels) {
                     currentStruct = sources[currentChannelNumber];
-                }
-                else {
+                } else {
                     currentStruct = destinations[currentChannelNumber];
                 }
 
@@ -171,40 +160,64 @@ int VideohubRouter::SetChannelData() {
                     }
                 }
 
-                std::cout << "Channel Label: " << currentStruct->name << std::endl;
+                std::cout << "Channel Label: " << currentStruct->name
+                          << std::endl;
             }
 
-            //Set routing
+            // Set routing
             if (block == routing) {
                 // Get Channelnumber
                 currentChannelNumber = std::stoi(lineList[0]);
                 currentStruct = destinations[currentChannelNumber];
                 currentStructNumber = std::stoi(lineList[1]);
                 currentStruct->source = sources[currentStructNumber];
-                std::cout << currentStruct->channelNum << " " << currentStruct->name << " <-- " << currentStruct->source->channelNum << " " << currentStruct->source->name << std::endl;
+                std::cout << currentStruct->channelNum << " "
+                          << currentStruct->name << " <-- "
+                          << currentStruct->source->channelNum << " "
+                          << currentStruct->source->name << std::endl;
             }
-        } // if line.empty()
+        }  // if line.empty()
 
         lineList.clear();
         currentStruct = nullptr;
-    } //for loop
+    }  // for loop
     return 0;
 }
-int VideohubRouter::SetRoute(int destination, int source){
-    if (destination >= destinationCount)
-    {
+int VideohubRouter::SetRoute(int destination, int source) {
+    if (destination >= destinationCount) {
         return -1;
-    } else if (source >= sourceCount)
-    {
+    } else if (source >= sourceCount) {
         return -1;
     }
-    
 
+    ChannelStruct *currentDest = destinations[destination];
+    ChannelStruct *currentSrc = sources[source];
 
-    ChannelStruct * currentDest = destinations[destination];
-    ChannelStruct * currentSrc = sources[source];
+    currentDest->source = currentSrc;
+    currentDest->changedRoute = true;
 
+    return 0;
+}
 
+int VideohubRouter::TakeRoutes() {
+    std::string routeString = "video output routing:\n\n";
+    std::string currentRoute;
+    std::string response;
+
+    for (auto destination : destinations) {
+        if (destination->changedRoute) {
+            currentRoute = std::to_string(destination->channelNum) + " " +
+                           std::to_string(destination->source->channelNum) +
+                           '\n';
+            routeString += currentRoute;
+            destination->changedRoute = false;
+        }
+    }
+
+    routeString += '\n';
+    std::cout << "Sending: \n" << routeString << std::endl;
+
+    tClient->SendMsgToServer(routeString, &response);
 
     return 0;
 }

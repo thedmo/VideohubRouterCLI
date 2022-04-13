@@ -9,6 +9,8 @@ struct ChannelStruct {
     std::string name;
     unsigned int channelNum;
     ChannelStruct *source = nullptr;
+
+    bool changedRoute = false;
 };
 
 class VideohubRouter {

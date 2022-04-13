@@ -61,9 +61,37 @@ void PrintData() {
     selected_router->PrintData();
 }
 
-void SetNewRoute() { std::cout << "Not implemented yet." << std::endl; }
+void SetNewRoute() {
+    std::string destination, source;
 
-void TakeRoutes() { std::cout << "Not implemented yet." << std::endl; }
+    int destinationNum, sourceNum;
+
+    std::cout << "Please Type destination: " << std::endl;
+    std::cin >> destination;
+    try {
+        destinationNum = std::stoi(destination);
+    } catch (const std::exception &e) {
+        std::cerr << e.what() << std::endl;
+    }
+
+    std::cout << "Type sourcenumber: " << std::endl;
+    std::cin >> source;
+    try {
+        sourceNum = std::stoi(source);
+    } catch (const std::exception &e) {
+        std::cerr << e.what() << std::endl;
+    }
+
+    int result = selected_router->SetRoute(sourceNum, destinationNum);
+
+    if (result != 0) {
+        std::cerr << "set new Route didn't work." << std::endl;
+    }
+}
+
+void TakeRoutes() { 
+    selected_router->TakeRoutes();
+}
 
 void SetSourceName() { std::cout << "Not implemented yet." << std::endl; }
 
@@ -94,7 +122,7 @@ void ConfigureMenu(Menu *menu) {
                    ChangeIpAddress);
     menu->AddEntry("p", "print all data of selected device.", PrintData);
     menu->AddEntry("r", "set new route on selected device.", SetNewRoute);
-    menu->AddEntry("t", "Take all set routes at once", SetNewRoute);
+    menu->AddEntry("t", "Take all set routes at once", TakeRoutes);
     menu->AddEntry("ns", "set a new name on a source of selected device.",
                    SetSourceName);
     menu->AddEntry("nd", "Set a new name on a destination of selected device.",
