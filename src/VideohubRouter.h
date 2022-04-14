@@ -25,8 +25,8 @@ class VideohubRouter {
 
     int PrintData();
 
-    int ChangeSourceName(int channel, std::string name);
-    int ChangeDestinationName(int channel, std::string name);
+    int ChangeSourceName(unsigned int channel, std::string new_name);
+    int ChangeDestinationName(unsigned int channel, std::string new_name);
 
     int SetRoute(int destination, int source);
     int TakeRoutes();

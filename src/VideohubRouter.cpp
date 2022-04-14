@@ -183,6 +183,46 @@ int VideohubRouter::SetChannelData() {
     }  // for loop
     return 0;
 }
+
+int VideohubRouter::ChangeSourceName(unsigned int channel,
+                                     std::string new_name) {
+    if (channel >= sourceCount) {
+        return -1;
+    }
+
+    sources[channel]->name = new_name;
+
+    std::string channel_name_command;
+    std::string response;
+
+    channel_name_command = "INPUT LABELS:\n" + std::to_string(channel) + " " + new_name + '\n';
+
+    tClient->SendMsgToServer(channel_name_command, &response);
+
+    // std::cout << response << std::endl;
+
+    return 0;
+}
+
+int VideohubRouter::ChangeDestinationName(unsigned int channel,
+                                          std::string new_name) {
+    if (channel >= destinationCount) {
+        return -1;
+    }
+
+    destinations[channel]->name = new_name;
+
+    std::string channel_name_command;
+    std::string response;
+    channel_name_command = "OUTPUT LABELS:\n" + std::to_string(channel) + " " + new_name + '\n';
+
+    tClient->SendMsgToServer(channel_name_command, &response);
+
+    // std::cout << response << std::endl;
+
+    return 0;
+}
+
 int VideohubRouter::SetRoute(int destination, int source) {
     if (destination >= destinationCount) {
         return -1;

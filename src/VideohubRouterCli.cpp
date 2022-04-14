@@ -89,13 +89,30 @@ void SetNewRoute() {
     }
 }
 
-void TakeRoutes() { 
-    selected_router->TakeRoutes();
+void TakeRoutes() { selected_router->TakeRoutes(); }
+
+void SetSourceName() {
+    std::cout << "type number of source to be renamed: " << std::endl;
+    std::string user_input;
+    unsigned int channel;
+    std::cin >> user_input;
+    try {
+        channel = std::stoi(user_input);
+    } catch (const std::exception &e) {
+        std::cerr << "No a Number: " << e.what() << '\n';
+        return;
+    }
+    user_input.clear();
+    std::cout << "Type in new name for this channel: ";
+    std::cin >> user_input;
+
+    selected_router->ChangeSourceName(channel, user_input);
 }
 
-void SetSourceName() { std::cout << "Not implemented yet." << std::endl; }
-
-void SetDestinationName() { std::cout << "Not implemented yet." << std::endl; }
+void SetDestinationName() {
+    std::cout << "Not implemented yet." << std::endl;
+    // TODO
+}
 
 void ChangeIpAddress() {
     std::string newIp;
