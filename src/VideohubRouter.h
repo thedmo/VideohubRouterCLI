@@ -16,7 +16,6 @@ struct ChannelStruct {
 class VideohubRouter {
    public:
     VideohubRouter();
-    // VideohubRouter(std::string ip);
     ~VideohubRouter();
 
     int SetIpAddress(std::string newAddress);
