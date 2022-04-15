@@ -47,8 +47,6 @@ int VideohubRouter::GetData() {
         return -1;
     }
 
-    // Todo call SetChannelData directly
-
     SetChannelData();
 
     return 0;
