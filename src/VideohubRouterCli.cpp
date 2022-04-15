@@ -3,22 +3,16 @@
 
 // METHODS
 void AddNewRouter() {
-    VideohubRouter *newRouter = new VideohubRouter();
 
     std::string newIp;
     std::cout << "Please enter Ip Adress (IPv4): ";
     std::cin >> newIp;
 
-    int result = newRouter->SetIpAddress(newIp);
+    VideohubRouter *newRouter = new VideohubRouter(newIp);
+    AddRouterToList(newRouter);
 
-    if (result != 0) {
-        std::cout << "invalid ip.. aborting" << std::endl;
-    }
-    else {
-        AddRouterToList(newRouter);
-        selected_router = newRouter;
-        std::cout << "Added and selected new router." << std::endl;
-    }
+    selected_router = newRouter;
+    std::cout << "Added and selected new router." << std::endl;
 }
 
 void RemoveRouter() { std::cout << "Not implemented yet." << std::endl; }
@@ -109,7 +103,7 @@ void SetSourceName() {
     }
     user_input.clear();
     std::cout << "Type in new name for this channel: ";
-    std::cin >> user_input;
+    std::getline(std::cin, user_input);
 
     selected_router->ChangeSourceName(channel, user_input);
 }
@@ -126,9 +120,8 @@ void SetDestinationName() {
         std::cerr << "Not a Number: " << e.what() << '\n';
         return;
     }
-    // TODO
     std::cout << "Type in new name for this channel: ";
-    std::cin >> user_input;
+    std::getline(std::cin, user_input);
 
     selected_router->ChangeDestinationName(channel, user_input);
 }

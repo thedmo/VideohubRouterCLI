@@ -14,8 +14,9 @@ struct ChannelStruct {
 };
 
 class VideohubRouter {
-   public:
-    VideohubRouter();
+public:
+    VideohubRouter() = delete;
+    VideohubRouter(std::string ip);
     ~VideohubRouter();
 
     int SetIpAddress(std::string newAddress);
@@ -34,7 +35,7 @@ class VideohubRouter {
     int SetNewIpAddress(std::string ip);
     std::string GetIp();
 
-   private:
+private:
     std::string m_ipAdress = "127.0.0.1";
     int m_port = 9990;
 
@@ -43,9 +44,9 @@ class VideohubRouter {
 
     std::string m_name = "name not set";
     u_int sourceCount;
-    std::vector<ChannelStruct*> sources;
+    std::vector<ChannelStruct *> sources;
     u_int destinationCount;
-    std::vector<ChannelStruct*> destinations;
+    std::vector<ChannelStruct *> destinations;
 
     TelnetClient *tClient;
 

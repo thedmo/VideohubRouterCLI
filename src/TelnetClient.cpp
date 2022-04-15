@@ -1,21 +1,21 @@
 #include "TelnetClient.h"
 
 TelnetClient::TelnetClient(std::string ip, int port)
-    : m_ipAddress(ip), portNum(port) {}
+    : m_ipAddress(ip), portNum(port) {
 
-TelnetClient::~TelnetClient() { CloseConnection(); }
-
-int TelnetClient::SendMsgToServer(std::string msg, std::string *m_response) {
     int cResult;
 
     cResult = OpenConnection();
 
     if (cResult != 0) {
         std::cerr << "could not open Connection to Server: " << m_ipAddress
-                  << std::endl;
-        return -1;
+            << std::endl;
     }
+}
 
+TelnetClient::~TelnetClient() { CloseConnection(); }
+
+int TelnetClient::SendMsgToServer(std::string msg, std::string *m_response) {
     int sendResult = send(sock, msg.c_str(), msg.size() + 1, 0);
 
     if (sendResult != SOCKET_ERROR) {
@@ -39,6 +39,8 @@ int TelnetClient::ChangeIpAddress(std::string newAddress) {
 
     std::cout << "New Ip: " << newAddress << std::endl;
     m_ipAddress = newAddress;
+
+    OpenConnection();
     return 0;
 }
 
@@ -57,7 +59,7 @@ int TelnetClient::OpenConnection() {
     sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock == INVALID_SOCKET) {
         std::cerr << "Can't Create socket, ERR #" << WSAGetLastError()
-                  << std::endl;
+            << std::endl;
         WSACleanup();
         return -1;
     }
@@ -67,15 +69,15 @@ int TelnetClient::OpenConnection() {
     hint.sin_port = htons(portNum);
     int ipresult = inet_pton(AF_INET, m_ipAddress.c_str(), &hint.sin_addr);
     if (ipresult == 0) {
-        std::cerr << "Format of Ip Wrong! Aborting. Err #: "
-                  << WSAGetLastError() << std::endl;
+        std::cerr << "Format of Ip Wrong! Err #: "
+            << WSAGetLastError() << std::endl;
         return -1;
     }
 
     int connResult = connect(sock, (sockaddr *)&hint, sizeof(hint));
     if (connResult == SOCKET_ERROR) {
-        std::cerr << "Can't connect to server, Err #" << WSAGetLastError()
-                  << std::endl;
+        std::cerr << "Can't connect to server. Wrong IP? Err #" << WSAGetLastError()
+            << std::endl;
         closesocket(sock);
         WSACleanup();
         return -1;

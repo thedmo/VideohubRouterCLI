@@ -7,7 +7,7 @@
 
 class TelnetClient{
     public:
-    TelnetClient();
+    TelnetClient() = delete;
     TelnetClient(std::string ip, int port);
     ~TelnetClient();
 
