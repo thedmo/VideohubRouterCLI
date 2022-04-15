@@ -193,11 +193,9 @@ int VideohubRouter::ChangeSourceName(unsigned int channel,
     std::string channel_name_command;
     std::string response;
 
-    channel_name_command = "INPUT LABELS:\n" + std::to_string(channel) + " " + new_name + '\n';
+    channel_name_command = "INPUT LABELS:\n" + std::to_string(channel) + " " + new_name + "\n\n";
 
     tClient->SendMsgToServer(channel_name_command, &response);
-
-    // std::cout << response << std::endl;
 
     return 0;
 }
@@ -212,11 +210,9 @@ int VideohubRouter::ChangeDestinationName(unsigned int channel,
 
     std::string channel_name_command;
     std::string response;
-    channel_name_command = "OUTPUT LABELS:\n" + std::to_string(channel) + " " + new_name + '\n';
+    channel_name_command = "OUTPUT LABELS:\n" + std::to_string(channel) + " " + new_name + "\n\n";
 
     tClient->SendMsgToServer(channel_name_command, &response);
-
-    // std::cout << response << std::endl;
 
     return 0;
 }
@@ -238,7 +234,7 @@ int VideohubRouter::SetRoute(int destination, int source) {
 }
 
 int VideohubRouter::TakeRoutes() {
-    std::string routeString = "video output routing:\n\n";
+    std::string routeString = "video output routing:\n";
     std::string currentRoute;
     std::string response;
 
