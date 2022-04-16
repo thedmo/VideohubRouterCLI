@@ -1,6 +1,6 @@
 #include "TelnetClient.h"
 
-TelnetClient::TelnetClient(std::string ip, int port)
+TelnetClient::TelnetClient(std::string ip, int port, std::string &initMsg)
     : m_ipAddress(ip), portNum(port) {
 
     int cResult;
@@ -11,21 +11,23 @@ TelnetClient::TelnetClient(std::string ip, int port)
         std::cerr << "could not open Connection to Server: " << m_ipAddress
             << std::endl;
     }
+
+    ReceiveMsgFromServer(initMsg);
 }
 
 TelnetClient::~TelnetClient() { CloseConnection(); }
 
-int TelnetClient::SendMsgToServer(std::string msg, std::string *m_response) {
+int TelnetClient::SendMsgToServer(std::string msg) {
     int sendResult = send(sock, msg.c_str(), msg.size() + 1, 0);
+    return sendResult;
+}
 
-    if (sendResult != SOCKET_ERROR) {
-        ZeroMemory(buf, 4096);
-        int bytesReceived = recv(sock, buf, 4096, 0);
-        std::string response = std::string(buf, 0, bytesReceived);
-        *m_response = response;
-    }
+int TelnetClient::ReceiveMsgFromServer(std::string &dump) {
+    ZeroMemory(buf, 4096);
+    int bytesReceived = recv(sock, buf, 4096, 0);
+    dump = std::string(buf, 0, bytesReceived);
 
-    return 0;
+    return bytesReceived;
 }
 
 int TelnetClient::ChangeIpAddress(std::string newAddress) {

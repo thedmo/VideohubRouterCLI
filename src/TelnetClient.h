@@ -5,22 +5,24 @@
 #include <string>
 #include <ws2tcpip.h>
 
-class TelnetClient{
-    public:
+class TelnetClient {
+public:
     TelnetClient() = delete;
-    TelnetClient(std::string ip, int port);
+    TelnetClient(std::string ip, int port, std::string &initMsg);
     ~TelnetClient();
 
-    int SendMsgToServer(std::string, std::string *response);
+    int SendMsgToServer(std::string msg);
+    int ReceiveMsgFromServer(std::string &dump);
+
     int ChangeIpAddress(std::string newAddress);
 
     std::string GetIp();
 
-    private:
+private:
     std::string m_ipAddress;
     int portNum;
 
-    std::string* m_response;
+    // std::string m_response;
     char buf[4096];
     SOCKET sock;
 
