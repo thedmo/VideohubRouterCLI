@@ -282,6 +282,8 @@ int VideohubRouter::SetDeviceData() {
 
     }  // for loop
 
+    //Todo Getting Information only when something has changed
+
     SetDeviceInformation();
     SetInputLabelsData();
     SetOutputLabelsData();
@@ -289,6 +291,8 @@ int VideohubRouter::SetDeviceData() {
 
     return 0;
 }
+
+// Todo get information from device on Command sent
 
 int VideohubRouter::ChangeSourceName(unsigned int channel,
     std::string new_name) {
