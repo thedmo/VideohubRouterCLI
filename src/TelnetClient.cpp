@@ -5,12 +5,7 @@ TelnetClient::TelnetClient(std::string ip, int port, std::string &initMsg)
 
     int cResult;
 
-    cResult = OpenConnection();
-
-    if (cResult != 0) {
-        std::cerr << "could not open Connection to Server: " << m_ipAddress
-            << std::endl;
-    }
+    OpenConnection();
 
     ReceiveMsgFromServer(initMsg);
 }
@@ -30,7 +25,7 @@ int TelnetClient::ReceiveMsgFromServer(std::string &dump) {
     return bytesReceived;
 }
 
-int TelnetClient::ChangeIpAddress(std::string newAddress) {
+int TelnetClient::ChangeIpAddress(std::string newAddress, std::string &initMsg) {
     sockaddr_in newIp;
     newIp.sin_family = AF_INET;
     int ipResult = inet_pton(AF_INET, newAddress.c_str(), &newIp.sin_addr);
@@ -43,6 +38,7 @@ int TelnetClient::ChangeIpAddress(std::string newAddress) {
     m_ipAddress = newAddress;
 
     OpenConnection();
+    ReceiveMsgFromServer(initMsg);
     return 0;
 }
 

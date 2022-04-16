@@ -20,9 +20,7 @@ public:
     ~VideohubRouter();
 
     int SetIpAddress(std::string newAddress);
-
-    int GetData();
-
+    
     int PrintData();
 
     int ChangeSourceName(unsigned int channel, std::string new_name);
@@ -39,8 +37,8 @@ private:
     std::string m_ipAdress = "127.0.0.1";
     int m_port = 9990;
 
-    std::string *m_dataDump;
-    std::vector<std::string> m_dataSet;
+    std::string m_init_data_dump;
+    std::string m_routes_dump, m_dest_labels_dump, m_source_labels_dump, m_device_dump;
 
     std::string m_name = "name not set";
     u_int sourceCount;
@@ -50,7 +48,12 @@ private:
 
     TelnetClient *tClient;
 
-    int SetChannelData();
+    int SetDeviceData();
+    int SetDeviceInformation();
+    int SetInputLabelsData();
+    int SetOutputLabelsData();
+    int SetRoutingData();
+
     std::string SetName();
     int SetChannelCount();
 };
