@@ -1,8 +1,6 @@
 #ifndef VideoRouterCli
 #define VideoRouterCli
 
-#include <functional>
-#include <iostream>
 
 #include "VideohubRouter.h"
 #include "Menu.h"
@@ -20,7 +18,7 @@ void SetDestinationName();
 void ChangeIpAddress();
 
 static std::vector<VideohubRouter *> m_routers;
-static VideohubRouter* selected_router;
+static VideohubRouter *selected_router;
 
 void AddRouterToList(VideohubRouter *newRouter);
 int GetRouterList();

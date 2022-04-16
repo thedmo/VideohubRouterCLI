@@ -1,6 +1,10 @@
 
 #include "VideohubRouterCli.h"
 
+#include <string>
+#include <functional>
+#include <iostream>
+
 // METHODS
 void AddNewRouter() {
 
@@ -103,6 +107,7 @@ void SetSourceName() {
     }
     user_input.clear();
     std::cout << "Type in new name for this channel: ";
+    std::cin.ignore();
     std::getline(std::cin, user_input);
 
     selected_router->ChangeSourceName(channel, user_input);
@@ -121,6 +126,7 @@ void SetDestinationName() {
         return;
     }
     std::cout << "Type in new name for this channel: ";
+    std::cin.ignore();
     std::getline(std::cin, user_input);
 
     selected_router->ChangeDestinationName(channel, user_input);
