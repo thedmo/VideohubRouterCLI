@@ -345,7 +345,7 @@ int VideohubRouter::SetRoute(int destination, int source) {
 }
 
 int VideohubRouter::TakeRoutes() {
-    std::string route_command = "video output routing:\n";
+    std::string route_command = "VIDEO OUTPUT ROUTING:\n";
     std::string currentRoute;
     std::string response;
 
@@ -363,6 +363,11 @@ int VideohubRouter::TakeRoutes() {
     std::cout << "Sending: \n" << route_command << std::endl;
 
     int result = tClient->SendMsgToServer(route_command);
+    
+    // std::string response; 
+    tClient->ReceiveMsgFromServer(response);
+    std::cout << response << std::endl;
+
     return result;
 }
 

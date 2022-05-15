@@ -6,21 +6,27 @@ TelnetClient::TelnetClient(std::string ip, int port, std::string &initMsg)
     int cResult;
 
     OpenConnection();
-
     ReceiveMsgFromServer(initMsg);
 }
 
 TelnetClient::~TelnetClient() { CloseConnection(); }
 
 int TelnetClient::SendMsgToServer(std::string msg) {
-    int sendResult = send(sock, msg.c_str(), msg.size() + 1, 0);
+    int sendResult = send(sock, msg.c_str(), msg.size(), 0);
     return sendResult;
 }
 
 int TelnetClient::ReceiveMsgFromServer(std::string &dump) {
     ZeroMemory(buf, 4096);
     int bytesReceived = recv(sock, buf, 4096, 0);
-    dump = std::string(buf, 0, bytesReceived);
+    std::string s_result = std::string(buf, 0, bytesReceived);
+    if (s_result.size() != std::string::npos)
+    {
+        dump = s_result;
+    }
+    else {
+        dump.clear();
+    }
 
     return bytesReceived;
 }

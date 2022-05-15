@@ -1,9 +1,8 @@
-#ifndef TelClient
-#define TelClient
+#pragma once
 
+#include <ws2tcpip.h>
 #include <iostream>
 #include <string>
-#include <ws2tcpip.h>
 
 class TelnetClient {
 public:
@@ -28,4 +27,3 @@ private:
     int OpenConnection();
     int CloseConnection();
 };
-#endif //TelClient
