@@ -1,9 +1,9 @@
-#ifndef MenuLibrary
-#define MenuLibrary
+#pragma once
 
 #include <functional>
 #include <iostream>
 #include <string>
+#include <vector>
 
 using EntryFunction = std::function<void()>;
 
@@ -42,5 +42,3 @@ class Menu {
 
     void Quit();
 };  // class MenuLib
-
-#endif  // MenuLibrary
