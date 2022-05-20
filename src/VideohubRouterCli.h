@@ -24,6 +24,7 @@ void AddRouterToList(VideohubRouter *newRouter);
 int GetRouterList();
 
 void ConfigureMenu();
+void SelectRouterFromList(unsigned int num);
 
 namespace vhr {
 void StartCli();
