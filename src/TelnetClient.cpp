@@ -1,37 +1,37 @@
 #include "TelnetClient.h"
 
-TelnetClient::TelnetClient(std::string ip, int port, std::string &initMsg)
-    : m_ipAddress(ip), portNum(port) {
+TelnetClient::TelnetClient(std::string ip, int port, std::string &init_response)
+    : m_ip_address(ip), m_port(port) {
 
     int cResult;
 
     OpenConnection();
-    ReceiveMsgFromServer(initMsg);
+    ReceiveMsgFromServer(init_response);
 }
 
 TelnetClient::~TelnetClient() { CloseConnection(); }
 
 int TelnetClient::SendMsgToServer(std::string msg) {
-    int sendResult = send(sock, msg.c_str(), msg.size(), 0);
+    int sendResult = send(m_sock, msg.c_str(), msg.size(), 0);
     return sendResult;
 }
 
-int TelnetClient::ReceiveMsgFromServer(std::string &dump) {
-    ZeroMemory(buf, 4096);
-    int bytesReceived = recv(sock, buf, 4096, 0);
-    std::string s_result = std::string(buf, 0, bytesReceived);
+int TelnetClient::ReceiveMsgFromServer(std::string &response) {
+    ZeroMemory(m_buf, 4096);
+    int bytesReceived = recv(m_sock, m_buf, 4096, 0);
+    std::string s_result = std::string(m_buf, 0, bytesReceived);
     if (s_result.size() != std::string::npos)
     {
-        dump = s_result;
+        response = s_result;
     }
     else {
-        dump.clear();
+        response.clear();
     }
 
     return bytesReceived;
 }
 
-int TelnetClient::ChangeIpAddress(std::string newAddress, std::string &initMsg) {
+int TelnetClient::ChangeIpAddress(std::string newAddress, std::string &init_response) {
     sockaddr_in newIp;
     newIp.sin_family = AF_INET;
     int ipResult = inet_pton(AF_INET, newAddress.c_str(), &newIp.sin_addr);
@@ -41,14 +41,14 @@ int TelnetClient::ChangeIpAddress(std::string newAddress, std::string &initMsg) 
     }
 
     std::cout << "New Ip: " << newAddress << std::endl;
-    m_ipAddress = newAddress;
+    m_ip_address = newAddress;
 
     OpenConnection();
-    ReceiveMsgFromServer(initMsg);
+    ReceiveMsgFromServer(init_response);
     return 0;
 }
 
-std::string TelnetClient::GetIp() { return m_ipAddress; }
+std::string TelnetClient::GetIp() { return m_ip_address; }
 
 int TelnetClient::OpenConnection() {
     WSAData data;
@@ -60,8 +60,8 @@ int TelnetClient::OpenConnection() {
         return -1;
     }
 
-    sock = socket(AF_INET, SOCK_STREAM, 0);
-    if (sock == INVALID_SOCKET) {
+    m_sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (m_sock == INVALID_SOCKET) {
         std::cerr << "Can't Create socket, ERR #" << WSAGetLastError()
             << std::endl;
         WSACleanup();
@@ -70,19 +70,19 @@ int TelnetClient::OpenConnection() {
 
     sockaddr_in hint;
     hint.sin_family = AF_INET;
-    hint.sin_port = htons(portNum);
-    int ipresult = inet_pton(AF_INET, m_ipAddress.c_str(), &hint.sin_addr);
+    hint.sin_port = htons(m_port);
+    int ipresult = inet_pton(AF_INET, m_ip_address.c_str(), &hint.sin_addr);
     if (ipresult == 0) {
         std::cerr << "Format of Ip Wrong! Err #: "
             << WSAGetLastError() << std::endl;
         return -1;
     }
 
-    int connResult = connect(sock, (sockaddr *)&hint, sizeof(hint));
+    int connResult = connect(m_sock, (sockaddr *)&hint, sizeof(hint));
     if (connResult == SOCKET_ERROR) {
         std::cerr << "Can't connect to server. Wrong IP? Err #" << WSAGetLastError()
             << std::endl;
-        closesocket(sock);
+        closesocket(m_sock);
         WSACleanup();
         return -1;
     }
@@ -90,7 +90,7 @@ int TelnetClient::OpenConnection() {
 }
 
 int TelnetClient::CloseConnection() {
-    closesocket(sock);
+    closesocket(m_sock);
     WSACleanup();
     return 0;
 }

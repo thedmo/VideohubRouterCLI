@@ -1,6 +1,6 @@
 #include "VideohubRouter.h"
 
-#include <algorithm>
+// #include <algorithm>
 #include <iostream>
 #include <sstream>
 
@@ -15,12 +15,12 @@ VideohubRouter::~VideohubRouter() {
     delete (tClient);
     tClient = nullptr;
 
-    for (auto item : sources) {
+    for (auto item : m_sources) {
         delete (item);
         item = nullptr;
     }
 
-    for (auto item : destinations) {
+    for (auto item : m_destinations) {
         delete (item);
         item = nullptr;
     }
@@ -76,14 +76,14 @@ int VideohubRouter::SetDeviceInformation() {
             sourceCount = std::stoi(lineList[2]);
 
             for (size_t j = 0; j < sourceCount; j++) {
-                sources.push_back(new ChannelStruct);
+                m_sources.push_back(new ChannelStruct);
             }
         }
         else if (line.find("Video outputs: ") != std::string::npos) {
             destinationCount = std::stoi(lineList[2]);
 
             for (size_t j = 0; j < destinationCount; j++) {
-                destinations.push_back(new ChannelStruct);
+                m_destinations.push_back(new ChannelStruct);
             }
         }
 
@@ -119,13 +119,13 @@ int VideohubRouter::SetInputLabelsData() {
         int currentChannelNumber = std::stoi(lineList[0]);
 
         // Set Number
-        sources[currentChannelNumber]->channelNum = currentChannelNumber;
+        m_sources[currentChannelNumber]->channelNum = currentChannelNumber;
 
         // Set Name
         for (unsigned int j = 1; j < lineList.size(); ++j) {
-            sources[currentChannelNumber]->name += lineList[j];
+            m_sources[currentChannelNumber]->name += lineList[j];
             if (j < lineList.size() - 1) {
-                sources[currentChannelNumber]->name += ' ';
+                m_sources[currentChannelNumber]->name += ' ';
             }
         }
         lineList.clear();
@@ -159,13 +159,13 @@ int VideohubRouter::SetOutputLabelsData() {
         int currentChannelNumber = std::stoi(lineList[0]);
 
         // Set Number
-        destinations[currentChannelNumber]->channelNum = currentChannelNumber;
+        m_destinations[currentChannelNumber]->channelNum = currentChannelNumber;
 
         // Set Name
         for (unsigned int j = 1; j < lineList.size(); ++j) {
-            destinations[currentChannelNumber]->name += lineList[j];
+            m_destinations[currentChannelNumber]->name += lineList[j];
             if (j < lineList.size() - 1) {
-                destinations[currentChannelNumber]->name += ' ';
+                m_destinations[currentChannelNumber]->name += ' ';
             }
         }
         lineList.clear();
@@ -198,7 +198,7 @@ int VideohubRouter::SetRoutingData() {
         // set inputs in outputs
         int current_output_number = std::stoi(lineList[0]);
         int current_input_number = std::stoi(lineList[1]);
-        destinations[current_output_number]->source = sources[current_input_number];
+        m_destinations[current_output_number]->source = m_sources[current_input_number];
         lineList.clear();
     }
     return 0;
@@ -300,7 +300,7 @@ int VideohubRouter::ChangeSourceName(unsigned int channel,
         return -1;
     }
 
-    sources[channel]->name = new_name;
+    m_sources[channel]->name = new_name;
 
     std::string channel_name_command;
     std::string response;
@@ -317,7 +317,7 @@ int VideohubRouter::ChangeDestinationName(unsigned int channel,
         return -1;
     }
 
-    destinations[channel]->name = new_name;
+    m_destinations[channel]->name = new_name;
 
     std::string channel_name_command;
     std::string response;
@@ -335,8 +335,8 @@ int VideohubRouter::SetRoute(int destination, int source) {
         return -1;
     }
 
-    ChannelStruct *currentDest = destinations[destination];
-    ChannelStruct *currentSrc = sources[source];
+    ChannelStruct *currentDest = m_destinations[destination];
+    ChannelStruct *currentSrc = m_sources[source];
 
     currentDest->source = currentSrc;
     currentDest->changedRoute = true;
@@ -349,7 +349,7 @@ int VideohubRouter::TakeRoutes() {
     std::string currentRoute;
     std::string response;
 
-    for (auto destination : destinations) {
+    for (auto destination : m_destinations) {
         if (destination->changedRoute) {
             currentRoute = std::to_string(destination->channelNum) + " " +
                 std::to_string(destination->source->channelNum) +

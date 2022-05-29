@@ -30,7 +30,7 @@ public:
     int TakeRoutes();
 
     std::string GetName();
-    int SetNewIpAddress(std::string ip);
+
     std::string GetIp();
 
 private:
@@ -42,9 +42,9 @@ private:
 
     std::string m_name = "name not set";
     u_int sourceCount;
-    std::vector<ChannelStruct *> sources;
+    std::vector<ChannelStruct *> m_sources;
     u_int destinationCount;
-    std::vector<ChannelStruct *> destinations;
+    std::vector<ChannelStruct *> m_destinations;
 
     TelnetClient *tClient;
 

@@ -21,7 +21,6 @@ static std::vector<VideohubRouter *> m_routers;
 static VideohubRouter *selected_router;
 
 void AddRouterToList(VideohubRouter *newRouter);
-int GetRouterList();
 
 void ConfigureMenu();
 void SelectRouterFromList(unsigned int num);
