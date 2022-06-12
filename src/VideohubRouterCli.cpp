@@ -25,14 +25,35 @@ void RemoveRouter() {
         return;
     }
 
-    for (auto router : m_routers) {
+    for (size_t i = 0; i < m_routers.size(); i++)
+    {
+        auto router = m_routers[i];
+        delete router;
+
         if (router == selected_router) {
-            m_routers.erase(
-                std::remove(m_routers.begin(), m_routers.end(), router),
-                m_routers.end());
+            m_routers.erase(m_routers.begin() + i);
+
+            selected_router = nullptr;
+
             std::cout << "removed selected router." << std::endl;
         }
+
     }
+
+
+    // for (auto router : m_routers) {
+    //     if (router == selected_router) {
+    //         delete router;
+
+    //         m_routers.erase(
+    //             std::remove(m_routers.begin(), m_routers.end(), *router),
+    //             m_routers.end());
+
+    //         selected_router = nullptr;
+
+    //         std::cout << "removed selected router." << std::endl;
+    //     }
+    // }
 
     SelectRouterFromList(0);
 }
