@@ -12,16 +12,16 @@ VideohubRouter::VideohubRouter(std::string ip) :
 }
 
 VideohubRouter::~VideohubRouter() {
-    delete (tClient);
+    delete tClient;
     tClient = nullptr;
 
     for (auto item : m_sources) {
-        delete (item);
+        delete item;
         item = nullptr;
     }
 
     for (auto item : m_destinations) {
-        delete (item);
+        delete item;
         item = nullptr;
     }
 }
@@ -363,20 +363,18 @@ int VideohubRouter::TakeRoutes() {
     std::cout << "Sending: \n" << route_command << std::endl;
 
     int result = tClient->SendMsgToServer(route_command);
-    
-    // std::string response; 
+
+    // std::string response;
     tClient->ReceiveMsgFromServer(response);
     std::cout << response << std::endl;
 
     return result;
 }
 
-int VideohubRouter::PrintData() {
+std::string VideohubRouter::GetDataString() {
 
-    std::cout << m_device_dump << std::endl;
-    std::cout << m_source_labels_dump << std::endl;
-    std::cout << m_dest_labels_dump << std::endl;
-    std::cout << m_routes_dump << std::endl;
-
-    return 0;
+    return "Device information" + m_device_dump + "\n" +
+        "Input labels:" + m_source_labels_dump + "\n" +
+        "Output labels:" + m_dest_labels_dump + "\n" +
+        "Routing:" + m_routes_dump;
 }
