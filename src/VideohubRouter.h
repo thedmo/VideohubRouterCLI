@@ -9,6 +9,7 @@ struct ChannelStruct {
     std::string name;
     unsigned int channelNum;
     ChannelStruct *source = nullptr;
+    bool locked = false;
 
     bool changedRoute = false;
 };
