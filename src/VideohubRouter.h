@@ -21,7 +21,7 @@ public:
 
     int SetIpAddress(std::string newAddress);
     
-    int PrintData();
+    std::string GetDataString();
 
     int ChangeSourceName(unsigned int channel, std::string new_name);
     int ChangeDestinationName(unsigned int channel, std::string new_name);

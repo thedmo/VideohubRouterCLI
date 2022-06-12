@@ -83,7 +83,7 @@ void PrintData() {
         return;
     }
 
-    selected_router->PrintData();
+    std::cout << selected_router->GetDataString() << std::endl;
 }
 
 void SetNewRoute() {
