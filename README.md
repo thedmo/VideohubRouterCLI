@@ -21,7 +21,11 @@ June 12. 2022 At this Time the Project is still in an early stage and not really
 ---
 ### Future features
 
-- Saving state in database
-- running program with flags (for example: videohubroutercli -add 127.0.0.1 -sourcename 3 NewName -route 2 3)
 - locking/unlocking channels
+- Saving/loading routings/labels to file
+- loading setup in application
+- running program with flags directly from terminal (for example: videohubroutercli -add "127.0.0.1" -sourcename "3 NewName" -route "2 3")
+- loading setup with cli command (example: videohubroutercli -f "C:/routings/show1.vhr")
+- Saving state upon closing application
+- cross platform (currently only on Windows)
 - Dante Controller like GUI (Probably in a new Repository, since it would not be CLI anymore)
