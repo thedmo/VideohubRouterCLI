@@ -1,10 +1,4 @@
-
-#include "VideohubRouterCli.h"
-
-#include <algorithm>
-#include <functional>
-#include <iostream>
-#include <string>
+#include <VideohubRouterCli.h>
 
 // METHODS
 void AddNewRouter() {
@@ -12,55 +6,60 @@ void AddNewRouter() {
     std::cout << "Please enter Ip Adress (IPv4): ";
     std::cin >> newIp;
 
-    VideohubRouter *newRouter = new VideohubRouter(newIp);
-    AddRouterToList(newRouter);
 
-    selected_router = newRouter;
-    std::cout << "Added and selected new router." << std::endl;
+
+    VideohubRouter *newRouter = new VideohubRouter(newIp, feed);
+    if (!feed.Ok()) {
+        PrintFeedback();
+
+        std::cout << "Could not add new device" << std::endl;
+
+        if (newRouter->Get_Zombie_State())
+        {
+            delete newRouter;
+            std::cout << "Removed faulty device" << std::endl;
+        }
+    }
+    else {
+        AddRouterToList(newRouter);
+        selected_router = newRouter;
+        std::cout << "Added and selected new router." << std::endl;
+    }
+}
+
+void RemoveRouterAt(int index) {
+    delete m_routers[index];
+    m_routers.erase(m_routers.begin() + index);
 }
 
 void RemoveRouter() {
     if (m_routers.empty()) {
-        std::cout << "no router in list." << std::endl;
+        feed.Set_Feedback(-1, "no routers in list to remove");
+        PrintFeedback();
         return;
     }
 
     for (size_t i = 0; i < m_routers.size(); i++)
     {
-        auto router = m_routers[i];
-        delete router;
 
-        if (router == selected_router) {
-            m_routers.erase(m_routers.begin() + i);
+        if (m_routers[i] == selected_router) {
+            RemoveRouterAt(i);
+
 
             selected_router = nullptr;
-
-            std::cout << "removed selected router." << std::endl;
+            feed.Set_Feedback(0, "removed selected router.");
+            PrintFeedback();
         }
 
     }
-
-
-    // for (auto router : m_routers) {
-    //     if (router == selected_router) {
-    //         delete router;
-
-    //         m_routers.erase(
-    //             std::remove(m_routers.begin(), m_routers.end(), *router),
-    //             m_routers.end());
-
-    //         selected_router = nullptr;
-
-    //         std::cout << "removed selected router." << std::endl;
-    //     }
-    // }
 
     SelectRouterFromList(0);
 }
 
 void SelectRouter() {
     if (m_routers.size() <= 0) {
-        std::cerr << "no router in list. Aborting." << std::endl;
+        feed.Set_Feedback(-1, "No Router to be selected in Routers list. Add one first.");
+        PrintFeedback();
         return;
     }
 
@@ -79,9 +78,18 @@ void SelectRouter() {
         inputChoice = std::stoi(input);
     }
     catch (const std::exception &e) {
-        std::cerr << "no valid input." << e.what() << " aborting.\n";
+        feed.Set_Feedback(-1, "No valid input." + std::string(e.what()));
+        PrintFeedback();
         return;
     }
+
+    if (m_routers.size() - 1 < inputChoice)
+    {
+        feed.Set_Feedback(-1, "Number too high. try one less");
+        PrintFeedback();
+        return;
+    }
+
 
     SelectRouterFromList(inputChoice);
 }
@@ -89,7 +97,8 @@ void SelectRouter() {
 void SelectRouterFromList(unsigned int num) {
     if (m_routers.empty()) {
         selected_router = nullptr;
-        std::cout << "No Router to be selected" << std::endl;
+        feed.Set_Feedback(-1, "No Router to be selected in Routers list. Add one first.");
+        PrintFeedback();
         return;
     }
 
@@ -128,17 +137,18 @@ void SetNewRoute() {
         sourceNum = std::stoi(source);
     }
     catch (const std::exception &e) {
-        std::cerr << e.what() << std::endl;
+        std::cerr << std::string(e.what()) << std::endl;
     }
 
-    int result = selected_router->SetRoute(sourceNum, destinationNum);
-
-    if (result != 0) {
-        std::cerr << "set new Route didn't work." << std::endl;
-    }
+    ;
+    feed = selected_router->SetRoute(sourceNum, destinationNum);
+    PrintFeedback();
 }
 
-void TakeRoutes() { selected_router->TakeRoutes(); }
+void TakeRoutes() {
+    feed = selected_router->TakeRoutes();
+    PrintFeedback();
+}
 
 void SetSourceName() {
     std::cout << "type number of source to be renamed: " << std::endl;
@@ -157,7 +167,8 @@ void SetSourceName() {
     std::cin.ignore();
     std::getline(std::cin, user_input);
 
-    selected_router->ChangeSourceName(channel, user_input);
+    feed = selected_router->ChangeSourceName(channel, user_input);
+    PrintFeedback();
 }
 
 void SetDestinationName() {
@@ -176,7 +187,8 @@ void SetDestinationName() {
     std::cin.ignore();
     std::getline(std::cin, user_input);
 
-    selected_router->ChangeDestinationName(channel, user_input);
+    feed = selected_router->ChangeDestinationName(channel, user_input);
+    PrintFeedback();
 }
 
 void ChangeIpAddress() {
@@ -184,11 +196,8 @@ void ChangeIpAddress() {
     std::cout << "Please enter Ip Adress (IPv4): ";
     std::cin >> newIp;
 
-    int result = selected_router->SetIpAddress(newIp);
-
-    if (result != 0) {
-        std::cout << "invalid ip.. aborting" << std::endl;
-    }
+    feed = selected_router->SetIpAddress(newIp);
+    PrintFeedback();
 }
 
 void AddRouterToList(VideohubRouter *newRouter) {
@@ -211,6 +220,10 @@ void ConfigureMenu(Menu *menu) {
         SetDestinationName);
     menu->AddEntry("rm", "Remove a Router from the routers list.",
         RemoveRouter);
+}
+
+void PrintFeedback() {
+    std::cout << feed.Get_Result() << ": " << feed.Get_Message() << std::endl;
 }
 
 // ENTER APPLICATION

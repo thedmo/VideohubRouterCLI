@@ -1,21 +1,23 @@
-#pragma once
+#ifndef TELNETCLIENT
+#define TELNETCLIENT
 
 #include <ws2tcpip.h>
-#include <iostream>
 #include <string>
+#include <Feedback.h>
 
 class TelnetClient {
 public:
     TelnetClient() = delete;
-    TelnetClient(std::string ip, int port, std::string &init_response);
+    TelnetClient(std::string ip, int port, std::string &, Feedback &ref_feed);
     ~TelnetClient();
 
-    int SendMsgToServer(std::string msg);
-    int ReceiveMsgFromServer(std::string &response);
+    Feedback SendMsgToServer(std::string msg);
+    Feedback ReceiveMsgFromServer(std::string &response);
 
-    int ChangeIpAddress(std::string newAddress, std::string &init_response);
+    Feedback ChangeIpAddress(std::string newAddress, std::string &init_response);
 
     std::string GetIp();
+    Feedback feed;
 
 private:
     std::string m_ip_address;
@@ -24,6 +26,9 @@ private:
     char m_buf[4096];
     SOCKET m_sock;
 
-    int OpenConnection();
-    int CloseConnection();
+
+    Feedback OpenConnection();
+    Feedback CloseConnection();
 };
+
+#endif // TELNETCLIENT

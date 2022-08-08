@@ -8,7 +8,7 @@ Menu::Menu(std::string menu_name) : m_menuName(menu_name) {
 Menu::~Menu() {
     for (auto entry : *m_entries) {
         delete (entry);
-        entry == nullptr;
+        entry = nullptr;
     }
 
     delete (m_entries);

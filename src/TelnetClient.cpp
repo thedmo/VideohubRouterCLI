@@ -1,22 +1,24 @@
 #include "TelnetClient.h"
 
-TelnetClient::TelnetClient(std::string ip, int port, std::string &init_response)
+TelnetClient::TelnetClient(std::string ip, int port, std::string &init_response, Feedback &ref_feed)
     : m_ip_address(ip), m_port(port) {
 
-    int cResult;
-
-    OpenConnection();
-    ReceiveMsgFromServer(init_response);
+    ref_feed = OpenConnection();
+    if (ref_feed.Ok()) {
+        ref_feed = ReceiveMsgFromServer(init_response);
+    }
 }
 
 TelnetClient::~TelnetClient() { CloseConnection(); }
 
-int TelnetClient::SendMsgToServer(std::string msg) {
+Feedback TelnetClient::SendMsgToServer(std::string msg) {
     int sendResult = send(m_sock, msg.c_str(), msg.size(), 0);
-    return sendResult;
+
+    feed.Set_Feedback(0, "Message sent:\n" + msg);
+    return feed;
 }
 
-int TelnetClient::ReceiveMsgFromServer(std::string &response) {
+Feedback TelnetClient::ReceiveMsgFromServer(std::string &response) {
     ZeroMemory(m_buf, 4096);
     int bytesReceived = recv(m_sock, m_buf, 4096, 0);
     std::string s_result = std::string(m_buf, 0, bytesReceived);
@@ -28,44 +30,58 @@ int TelnetClient::ReceiveMsgFromServer(std::string &response) {
         response.clear();
     }
 
-    return bytesReceived;
+    feed.Set_Result(0);
+    feed.Set_Message("Bytes received: " + bytesReceived);
+
+    return feed;
 }
 
-int TelnetClient::ChangeIpAddress(std::string newAddress, std::string &init_response) {
+Feedback TelnetClient::ChangeIpAddress(std::string newAddress, std::string &init_response) {
     sockaddr_in newIp;
     newIp.sin_family = AF_INET;
     int ipResult = inet_pton(AF_INET, newAddress.c_str(), &newIp.sin_addr);
 
-    if (ipResult == 0) {
-        return -1;
+    if (ipResult != 1) {
+        feed.Set_Feedback(-1, "not a valid IPv4 Adress");
+        return feed;
     }
 
-    std::cout << "New Ip: " << newAddress << std::endl;
     m_ip_address = newAddress;
 
     OpenConnection();
+    if (!feed.Ok())
+    {
+        return feed;
+    }
+
     ReceiveMsgFromServer(init_response);
-    return 0;
+    if (!feed.Ok())
+    {
+        return feed;
+    }
+
+    feed.Set_Feedback(0, ("New Ip: " + newAddress));
+
+    return feed;
 }
 
 std::string TelnetClient::GetIp() { return m_ip_address; }
 
-int TelnetClient::OpenConnection() {
+Feedback TelnetClient::OpenConnection() {
     WSAData data;
 
     WORD ver = MAKEWORD(2, 2);
     int wsResult = WSAStartup(ver, &data);
     if (wsResult != 0) {
-        std::cerr << "Can't start Winsock, err #" << wsResult << std::endl;
-        return -1;
+        feed.Set_Feedback(-1, "Can't start Winsock, err #" + WSAGetLastError());
+        return feed;
     }
 
     m_sock = socket(AF_INET, SOCK_STREAM, 0);
     if (m_sock == INVALID_SOCKET) {
-        std::cerr << "Can't Create socket, ERR #" << WSAGetLastError()
-            << std::endl;
         WSACleanup();
-        return -1;
+        feed.Set_Feedback(-1, "Can't Create socket, ERR #" + WSAGetLastError());
+        return feed;
     }
 
     sockaddr_in hint;
@@ -73,24 +89,29 @@ int TelnetClient::OpenConnection() {
     hint.sin_port = htons(m_port);
     int ipresult = inet_pton(AF_INET, m_ip_address.c_str(), &hint.sin_addr);
     if (ipresult == 0) {
-        std::cerr << "Format of Ip Wrong! Err #: "
-            << WSAGetLastError() << std::endl;
-        return -1;
+        feed.Set_Feedback(-1, "Format of Ip Wrong! Err #: " + WSAGetLastError());
+        return feed;
     }
 
     int connResult = connect(m_sock, (sockaddr *)&hint, sizeof(hint));
     if (connResult == SOCKET_ERROR) {
-        std::cerr << "Can't connect to server. Wrong IP? Err #" << WSAGetLastError()
-            << std::endl;
         closesocket(m_sock);
         WSACleanup();
-        return -1;
+        feed.Set_Feedback(-1, "Can't connect to server. Wrong IP? Err #" + WSAGetLastError());
+        return feed;
     }
-    return 0;
+
+    feed.Set_Result(0);
+    feed.Set_Message("Everything is quiet, Commander");
+
+    return feed;
 }
 
-int TelnetClient::CloseConnection() {
+Feedback TelnetClient::CloseConnection() {
     closesocket(m_sock);
     WSACleanup();
-    return 0;
+
+    feed.Set_Message("Connection closed");
+    feed.Set_Result(0);
+    return feed;
 }

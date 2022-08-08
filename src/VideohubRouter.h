@@ -2,6 +2,7 @@
 #define VideoRouter
 
 #include <vector>
+#include <Feedback.h>
 
 #include "TelnetClient.h"
 
@@ -17,22 +18,26 @@ struct ChannelStruct {
 class VideohubRouter {
 public:
     VideohubRouter() = delete;
-    VideohubRouter(std::string ip);
+    VideohubRouter(std::string ip, Feedback &ref_feed);
     ~VideohubRouter();
 
-    int SetIpAddress(std::string newAddress);
+    Feedback SetIpAddress(std::string newAddress);
     
     std::string GetDataString();
 
-    int ChangeSourceName(unsigned int channel, std::string new_name);
-    int ChangeDestinationName(unsigned int channel, std::string new_name);
+    Feedback ChangeSourceName(unsigned int channel, std::string new_name);
+    Feedback ChangeDestinationName(unsigned int channel, std::string new_name);
 
-    int SetRoute(int destination, int source);
-    int TakeRoutes();
+    Feedback SetRoute(int destination, int source);
+    Feedback TakeRoutes();
 
     std::string GetName();
 
     std::string GetIp();
+
+    bool Get_Zombie_State();
+
+    Feedback feed;
 
 private:
     std::string m_ipAdress = "127.0.0.1";
@@ -49,14 +54,15 @@ private:
 
     TelnetClient *tClient;
 
-    int SetDeviceData();
-    int SetDeviceInformation();
-    int SetInputLabelsData();
-    int SetOutputLabelsData();
-    int SetRoutingData();
+    Feedback SetDeviceData();
+    Feedback SetDeviceInformation();
+    Feedback SetInputLabelsData();
+    Feedback SetOutputLabelsData();
+    Feedback SetRoutingData();
 
     std::string SetName();
-    int SetChannelCount();
+
+    bool is_zombie = false;
 };
 
 #endif  // VideoRouter

@@ -4,11 +4,15 @@
 #include <iostream>
 #include <sstream>
 
-VideohubRouter::VideohubRouter(std::string ip) :
+VideohubRouter::VideohubRouter(std::string ip, Feedback &ref_feed) :
     m_ipAdress(ip) {
-    tClient = new TelnetClient(m_ipAdress, m_port, m_init_data_dump);
-
-    SetDeviceData();
+    tClient = new TelnetClient(m_ipAdress, m_port, m_init_data_dump, ref_feed);
+    if (ref_feed.Ok()) {
+        ref_feed = SetDeviceData();
+    }
+    else {
+        is_zombie = true;
+    }
 }
 
 VideohubRouter::~VideohubRouter() {
@@ -26,24 +30,24 @@ VideohubRouter::~VideohubRouter() {
     }
 }
 
-int VideohubRouter::SetIpAddress(std::string newAddress) {
-    int result = tClient->ChangeIpAddress(newAddress, m_init_data_dump);
+bool VideohubRouter::Get_Zombie_State() {
+    return is_zombie;
+}
 
-    if (result != 0) {
-        return -1;
-    }
+Feedback VideohubRouter::SetIpAddress(std::string newAddress) {
+    feed = tClient->ChangeIpAddress(newAddress, m_init_data_dump);
 
-    return 0;
+    return feed;
 }
 
 std::string VideohubRouter::GetIp() { return tClient->GetIp(); }
 
 std::string VideohubRouter::GetName() { return m_name; }
 
-int VideohubRouter::SetDeviceInformation() {
+Feedback VideohubRouter::SetDeviceInformation() {
     if (m_device_dump == "") {
-        std::cerr << "no device data available" << std::endl;
-        return -1;
+        feed.Set_Feedback(-1, "no device data available");
+        return feed;
     }
 
     std::string line;
@@ -90,13 +94,14 @@ int VideohubRouter::SetDeviceInformation() {
         lineList.clear();
     }
 
-    return 0;
+    feed.Set_Feedback(0, "device data set");
+    return feed;
 }
 
-int VideohubRouter::SetInputLabelsData() {
+Feedback VideohubRouter::SetInputLabelsData() {
     if (m_source_labels_dump == "") {
-        std::cerr << "no input label data available" << std::endl;
-        return -1;
+        feed.Set_Feedback(-1, "no input label data available");
+        return feed;
     }
 
     std::string line;
@@ -130,13 +135,15 @@ int VideohubRouter::SetInputLabelsData() {
         }
         lineList.clear();
     }
-    return 0;
+
+    feed.Set_Feedback(0, "input labels data set");
+    return feed;
 }
 
-int VideohubRouter::SetOutputLabelsData() {
+Feedback VideohubRouter::SetOutputLabelsData() {
     if (m_dest_labels_dump == "") {
-        std::cerr << "no output label data available" << std::endl;
-        return -1;
+        feed.Set_Feedback(-1, "no output data available");
+        return feed;
     }
 
     std::string line;
@@ -170,13 +177,15 @@ int VideohubRouter::SetOutputLabelsData() {
         }
         lineList.clear();
     }
-    return 0;
+
+    feed.Set_Feedback(0, "outputlabels data set");
+    return feed;
 }
 
-int VideohubRouter::SetRoutingData() {
+Feedback VideohubRouter::SetRoutingData() {
     if (m_routes_dump == "") {
-        std::cerr << "no routing data available" << std::endl;
-        return -1;
+        feed.Set_Feedback(-1, "no routing data available");
+        return feed;
     }
 
     std::string line;
@@ -201,14 +210,17 @@ int VideohubRouter::SetRoutingData() {
         m_destinations[current_output_number]->source = m_sources[current_input_number];
         lineList.clear();
     }
-    return 0;
+
+    feed.Set_Feedback(0, "Routingdata set");
+    return feed;
 }
 
 
-int VideohubRouter::SetDeviceData() {
+Feedback VideohubRouter::SetDeviceData() {
     if (m_init_data_dump == "") {
-        std::cerr << "no data available" << std::endl;
-        return -1;
+        feed.Set_Feedback(-1, "no data available");
+
+        return feed;
     }
 
     std::string line;
@@ -284,20 +296,29 @@ int VideohubRouter::SetDeviceData() {
 
     //Todo Getting Information only when something has changed
 
-    SetDeviceInformation();
-    SetInputLabelsData();
-    SetOutputLabelsData();
-    SetRoutingData();
+    feed = SetDeviceInformation();
+    if (!feed.Ok()) return feed;
 
-    return 0;
+    feed = SetInputLabelsData();
+    if (!feed.Ok()) return feed;
+
+    feed = SetOutputLabelsData();
+    if (!feed.Ok()) return feed;
+
+    feed = SetRoutingData();
+    if (!feed.Ok()) return feed;
+
+    feed.Set_Feedback(0, "Device data set.");
+    return feed;
 }
 
 // Todo get information from device on Command sent
 
-int VideohubRouter::ChangeSourceName(unsigned int channel,
+Feedback VideohubRouter::ChangeSourceName(unsigned int channel,
     std::string new_name) {
     if (channel >= sourceCount) {
-        return -1;
+        feed.Set_Feedback(-1, "Channelnumber of source higher than channelcount");
+        return feed;
     }
 
     m_sources[channel]->name = new_name;
@@ -307,14 +328,21 @@ int VideohubRouter::ChangeSourceName(unsigned int channel,
 
     channel_name_command = "INPUT LABELS:\n" + std::to_string(channel) + " " + new_name + "\n\n";
 
-    int result = tClient->SendMsgToServer(channel_name_command);
-    return result;
+    feed = tClient->SendMsgToServer(channel_name_command);
+    if (feed.Get_Result() != 0)
+    {
+        return feed;
+    }
+
+    feed.Set_Feedback(0, "Source Name changed to " + new_name);
+    return feed;
 }
 
-int VideohubRouter::ChangeDestinationName(unsigned int channel,
+Feedback VideohubRouter::ChangeDestinationName(unsigned int channel,
     std::string new_name) {
     if (channel >= destinationCount) {
-        return -1;
+        feed.Set_Feedback(-1, "Channelnumber of destination higher than channelcount");
+        return feed;
     }
 
     m_destinations[channel]->name = new_name;
@@ -323,16 +351,24 @@ int VideohubRouter::ChangeDestinationName(unsigned int channel,
     std::string response;
     channel_name_command = "OUTPUT LABELS:\n" + std::to_string(channel) + " " + new_name + "\n\n";
 
-    int result = tClient->SendMsgToServer(channel_name_command);
-    return result;
+    feed = tClient->SendMsgToServer(channel_name_command);
+    if (feed.Get_Result() != 0)
+    {
+        return feed;
+    }
+
+    feed.Set_Feedback(0, "Destination Name changed to " + new_name);
+    return feed;
 }
 
-int VideohubRouter::SetRoute(int destination, int source) {
+Feedback VideohubRouter::SetRoute(int destination, int source) {
     if (destination >= destinationCount) {
-        return -1;
+        feed.Set_Feedback(-1, "Destination Number too high");
+        return feed;
     }
     else if (source >= sourceCount) {
-        return -1;
+        feed.Set_Feedback(-1, "Source Number too high");
+        return feed;
     }
 
     ChannelStruct *currentDest = m_destinations[destination];
@@ -341,10 +377,11 @@ int VideohubRouter::SetRoute(int destination, int source) {
     currentDest->source = currentSrc;
     currentDest->changedRoute = true;
 
-    return 0;
+    feed.Set_Feedback(0, "new route prepared");
+    return feed;
 }
 
-int VideohubRouter::TakeRoutes() {
+Feedback VideohubRouter::TakeRoutes() {
     std::string route_command = "VIDEO OUTPUT ROUTING:\n";
     std::string currentRoute;
     std::string response;
@@ -358,17 +395,19 @@ int VideohubRouter::TakeRoutes() {
             destination->changedRoute = false;
         }
     }
-
     route_command += '\n';
-    std::cout << "Sending: \n" << route_command << std::endl;
 
-    int result = tClient->SendMsgToServer(route_command);
+    feed = tClient->SendMsgToServer(route_command);
+    if (feed.Get_Result() != 0)
+    {
+        return feed;
+    }
 
-    // std::string response;
-    tClient->ReceiveMsgFromServer(response);
-    std::cout << response << std::endl;
+    feed = tClient->ReceiveMsgFromServer(response);
+    if (!feed.Ok()) return feed;
 
-    return result;
+    feed.Set_Feedback(0, "New routes taken");
+    return feed;
 }
 
 std::string VideohubRouter::GetDataString() {
