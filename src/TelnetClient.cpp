@@ -1,4 +1,5 @@
 #include "TelnetClient.h"
+#include <iostream>
 
 TelnetClient::TelnetClient(std::string ip, int port, std::string &init_response, Feedback &ref_feed)
     : m_ip_address(ip), m_port(port) {
@@ -11,12 +12,45 @@ TelnetClient::TelnetClient(std::string ip, int port, std::string &init_response,
 
 TelnetClient::~TelnetClient() { CloseConnection(); }
 
+
+std::string ReceiveMsgAsync(TelnetClient *tc) {
+    std::string retVal;
+
+    tc->ReceiveMsgFromServer(retVal);
+
+    return retVal;
+}
+
+
 Feedback TelnetClient::SendMsgToServer(std::string msg) {
+
+    auto f1 = std::async(ReceiveMsgAsync, this);
+
+    std::cout << "TelnetClient: sending: " << msg << std::endl;
+
     int sendResult = send(m_sock, msg.c_str(), msg.size(), 0);
 
+
+    m_last_data_dump = f1.get();
+
+
+    // std::cout << m_last_data_dump << std::endl;
+
+    // ReceiveMsgFromServer(m_last_data_dump);
+
     feed.Set_Feedback(0, "Message sent:\n" + msg);
+
     return feed;
 }
+
+// Feedback TelnetClient::SendMsgToServerWithResponse(std::string msg, std::string &response) {
+//     int sendResult = send(m_sock, msg.c_str(), msg.size(), 0);
+//     ReceiveMsgFromServer(response);
+
+//     feed.Set_Feedback(0, "Message sent:\n" + msg);
+
+//     return feed;
+// }
 
 Feedback TelnetClient::ReceiveMsgFromServer(std::string &response) {
     ZeroMemory(m_buf, 4096);
@@ -35,6 +69,7 @@ Feedback TelnetClient::ReceiveMsgFromServer(std::string &response) {
 
     return feed;
 }
+
 
 Feedback TelnetClient::ChangeIpAddress(std::string newAddress, std::string &init_response) {
     sockaddr_in newIp;
@@ -55,6 +90,7 @@ Feedback TelnetClient::ChangeIpAddress(std::string newAddress, std::string &init
     }
 
     ReceiveMsgFromServer(init_response);
+
     if (!feed.Ok())
     {
         return feed;
@@ -66,6 +102,9 @@ Feedback TelnetClient::ChangeIpAddress(std::string newAddress, std::string &init
 }
 
 std::string TelnetClient::GetIp() { return m_ip_address; }
+
+std::string TelnetClient::GetLastDataDump() { return  m_last_data_dump; }
+
 
 Feedback TelnetClient::OpenConnection() {
     WSAData data;
