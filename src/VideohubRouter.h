@@ -31,9 +31,11 @@ public:
     Feedback SetRoute(int destination, int source);
     Feedback TakeRoutes();
 
-    std::string GetName();
+    Feedback SendMsg(std::string msg);
 
+    std::string GetName();
     std::string GetIp();
+    std::string GetLastMsg();
 
     bool Get_Zombie_State();
 
@@ -43,7 +45,7 @@ private:
     std::string m_ipAdress = "127.0.0.1";
     int m_port = 9990;
 
-    std::string m_init_data_dump;
+    std::string m_data_dump;
     std::string m_routes_dump, m_dest_labels_dump, m_source_labels_dump, m_device_dump;
 
     std::string m_name = "name not set";

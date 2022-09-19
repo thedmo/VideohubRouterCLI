@@ -1,5 +1,7 @@
 #include <VideohubRouterCli.h>
 
+//TODO Change Feedback to stack. Add function to read only last Feedback. when Feedback is read out, delete contents
+
 // METHODS
 void AddNewRouter() {
     std::string newIp;
@@ -204,6 +206,22 @@ void AddRouterToList(VideohubRouter *newRouter) {
     m_routers.push_back(newRouter);
 }
 
+void TelnetTest() {
+    std::string user_input;
+    user_input.clear();
+    std::cout << "Enter testcommand: ";
+    std::cin.ignore();
+    std::getline(std::cin, user_input);
+
+    std::cout << "CLI: sending: " << user_input << std::endl << std::endl;
+
+    feed = selected_router->SendMsg(user_input);
+    PrintFeedback();
+
+    std::cout << "Response: \n";
+    std::cout << selected_router->GetLastMsg() << std::endl;
+}
+
 // SET UP MENU
 void ConfigureMenu(Menu *menu) {
     menu->AddEntry("a", "Add a new router to list of Routers.", AddNewRouter);
@@ -220,6 +238,7 @@ void ConfigureMenu(Menu *menu) {
         SetDestinationName);
     menu->AddEntry("rm", "Remove a Router from the routers list.",
         RemoveRouter);
+    menu->AddEntry("msg", "send textmessage to Server (only for testing)", TelnetTest);
 }
 
 void PrintFeedback() {

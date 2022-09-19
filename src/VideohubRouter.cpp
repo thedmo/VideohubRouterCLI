@@ -4,9 +4,13 @@
 #include <iostream>
 #include <sstream>
 
+//TODO: Cleanup iostream
+
+//TODO: Add Locks functionality
+
 VideohubRouter::VideohubRouter(std::string ip, Feedback &ref_feed) :
     m_ipAdress(ip) {
-    tClient = new TelnetClient(m_ipAdress, m_port, m_init_data_dump, ref_feed);
+    tClient = new TelnetClient(m_ipAdress, m_port, m_data_dump, ref_feed);
     if (ref_feed.Ok()) {
         ref_feed = SetDeviceData();
     }
@@ -35,7 +39,7 @@ bool VideohubRouter::Get_Zombie_State() {
 }
 
 Feedback VideohubRouter::SetIpAddress(std::string newAddress) {
-    feed = tClient->ChangeIpAddress(newAddress, m_init_data_dump);
+    feed = tClient->ChangeIpAddress(newAddress, m_data_dump);
 
     return feed;
 }
@@ -99,6 +103,7 @@ Feedback VideohubRouter::SetDeviceInformation() {
 }
 
 Feedback VideohubRouter::SetInputLabelsData() {
+
     if (m_source_labels_dump == "") {
         feed.Set_Feedback(-1, "no input label data available");
         return feed;
@@ -111,13 +116,13 @@ Feedback VideohubRouter::SetInputLabelsData() {
     std::stringstream dataStream(m_source_labels_dump);
     while (std::getline(dataStream, line, '\n')) {
         std::stringstream lineStream(line);
-        while (std::getline(lineStream, lineSubString, ' ')) {
-            lineList.push_back(lineSubString);
-        }
-
         // skip step, if line doesn't contain channel information
         if ((line.find("INPUT LABELS:") != std::string::npos) || line == "") {
             continue;
+        }
+
+        while (std::getline(lineStream, lineSubString, ' ')) {
+            lineList.push_back(lineSubString);
         }
 
         // Get Channelnumber
@@ -217,7 +222,7 @@ Feedback VideohubRouter::SetRoutingData() {
 
 
 Feedback VideohubRouter::SetDeviceData() {
-    if (m_init_data_dump == "") {
+    if (m_data_dump == "") {
         feed.Set_Feedback(-1, "no data available");
 
         return feed;
@@ -232,7 +237,9 @@ Feedback VideohubRouter::SetDeviceData() {
     std::string routing = "routing";
     std::string other = "other";
 
-    std::stringstream dataStream(m_init_data_dump);
+    //TODO: add Locks to information
+
+    std::stringstream dataStream(m_data_dump);
     while (std::getline(dataStream, line, '\n')) {
         if (!line.empty()) {
 
@@ -242,16 +249,17 @@ Feedback VideohubRouter::SetDeviceData() {
                 continue;
             }
             else if (line.find("VIDEOHUB DEVICE:") != std::string::npos) {
+                m_device_dump.clear();
                 block = device_info;
                 continue;
             }
             else if (line.find("INPUT LABELS:") != std::string::npos) {
-                // std::cout << "Inputs:" << std::endl;
+                m_source_labels_dump.clear();
                 block = inputLabels;
                 continue;
             }
             else if (line.find("OUTPUT LABELS:") != std::string::npos) {
-                // std::cout << "Outputs:" << std::endl;
+                m_dest_labels_dump.clear();
                 block = outputLabels;
                 continue;
             }
@@ -261,7 +269,7 @@ Feedback VideohubRouter::SetDeviceData() {
             }
             else if (line.find("VIDEO OUTPUT ROUTING:") !=
                 std::string::npos) {
-                // std::cout << "Routing:" << std::endl;
+                m_routes_dump.clear();
                 block = routing;
                 continue;
             }
@@ -294,25 +302,34 @@ Feedback VideohubRouter::SetDeviceData() {
 
     }  // for loop
 
-    //Todo Getting Information only when something has changed
+    if (!m_device_dump.empty())
+    {
+        feed = SetDeviceInformation();
+        if (!feed.Ok()) return feed;
+    }
 
-    feed = SetDeviceInformation();
-    if (!feed.Ok()) return feed;
+    if (!m_source_labels_dump.empty())
+    {
+        feed = SetInputLabelsData();
+        if (!feed.Ok()) return feed;
+    }
 
-    feed = SetInputLabelsData();
-    if (!feed.Ok()) return feed;
+    if (!m_dest_labels_dump.empty()) {
 
-    feed = SetOutputLabelsData();
-    if (!feed.Ok()) return feed;
+        feed = SetOutputLabelsData();
+        if (!feed.Ok()) return feed;
+    }
 
-    feed = SetRoutingData();
-    if (!feed.Ok()) return feed;
+    if (!m_routes_dump.empty()) {
+
+        feed = SetRoutingData();
+        if (!feed.Ok()) return feed;
+    }
 
     feed.Set_Feedback(0, "Device data set.");
     return feed;
 }
 
-// Todo get information from device on Command sent
 
 Feedback VideohubRouter::ChangeSourceName(unsigned int channel,
     std::string new_name) {
@@ -329,15 +346,20 @@ Feedback VideohubRouter::ChangeSourceName(unsigned int channel,
     channel_name_command = "INPUT LABELS:\n" + std::to_string(channel) + " " + new_name + "\n\n";
 
     feed = tClient->SendMsgToServer(channel_name_command);
-    if (feed.Get_Result() != 0)
-    {
-        return feed;
-    }
+    if (!feed.Ok()) return feed;
+
+    // Get new Labelnames
+    feed = SendMsg("INPUT LABELS:\n\n");
+    if (!feed.Ok()) return feed;
+
+    feed = SetDeviceData();
+    if (!feed.Ok()) return feed;
 
     feed.Set_Feedback(0, "Source Name changed to " + new_name);
     return feed;
 }
 
+// TODO: get information from device on Command sent
 Feedback VideohubRouter::ChangeDestinationName(unsigned int channel,
     std::string new_name) {
     if (channel >= destinationCount) {
@@ -350,6 +372,7 @@ Feedback VideohubRouter::ChangeDestinationName(unsigned int channel,
     std::string channel_name_command;
     std::string response;
     channel_name_command = "OUTPUT LABELS:\n" + std::to_string(channel) + " " + new_name + "\n\n";
+
 
     feed = tClient->SendMsgToServer(channel_name_command);
     if (feed.Get_Result() != 0)
@@ -381,6 +404,7 @@ Feedback VideohubRouter::SetRoute(int destination, int source) {
     return feed;
 }
 
+// TODO: get information from device on Command sent
 Feedback VideohubRouter::TakeRoutes() {
     std::string route_command = "VIDEO OUTPUT ROUTING:\n";
     std::string currentRoute;
@@ -412,8 +436,25 @@ Feedback VideohubRouter::TakeRoutes() {
 
 std::string VideohubRouter::GetDataString() {
 
-    return "Device information" + m_device_dump + "\n" +
-        "Input labels:" + m_source_labels_dump + "\n" +
-        "Output labels:" + m_dest_labels_dump + "\n" +
-        "Routing:" + m_routes_dump;
+    return "\nDevice information:\n" + m_device_dump + "\n" +
+        "Input labels:\n" + m_source_labels_dump + "\n" +
+        "Output labels:\n" + m_dest_labels_dump + "\n" +
+        "Routing:\n" + m_routes_dump;
+}
+
+
+Feedback VideohubRouter::SendMsg(std::string msg) {
+    feed = tClient->SendMsgToServer(msg);
+    if (!feed.Ok()) return feed;
+    m_data_dump = tClient->GetLastDataDump();
+
+    // std::cout << "\nRouter: Got response:\n" << m_data_dump << std::endl;
+
+    // feed.Set_Feedback(0, "message sent");
+//TODO: Change Feedback Callback for easier reading like in this function (collision with feedback stack? --> maybe static member)
+    return Feedback(0, "message sent");
+}
+
+std::string VideohubRouter::GetLastMsg() {
+    return tClient->GetLastDataDump();
 }
