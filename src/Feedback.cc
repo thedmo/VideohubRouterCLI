@@ -1,6 +1,12 @@
 #include <Feedback.h>
 
 Feedback::Feedback(){};
+
+Feedback::Feedback(int r, std::string s){
+    m_result = r;
+    m_message = s;
+};
+
 Feedback::~Feedback(){};
 
 void Feedback::Set_Result(int r) {

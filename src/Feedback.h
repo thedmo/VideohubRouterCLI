@@ -7,6 +7,7 @@ class Feedback{
     public:
 
     Feedback();
+    Feedback(int r, std::string s);
     ~Feedback();
 
     void Set_Result(int r);
