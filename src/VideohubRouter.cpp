@@ -38,6 +38,8 @@ bool VideohubRouter::Get_Zombie_State() {
     return is_zombie;
 }
 
+
+// TODO fix behaviour, when nohing is entered
 Feedback VideohubRouter::SetIpAddress(std::string newAddress) {
     feed = tClient->ChangeIpAddress(newAddress, m_data_dump);
 

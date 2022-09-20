@@ -72,6 +72,14 @@ Feedback TelnetClient::ReceiveMsgFromServer(std::string &response) {
 
 
 Feedback TelnetClient::ChangeIpAddress(std::string newAddress, std::string &init_response) {
+    
+    if (newAddress.empty())
+    {
+        feed.Set_Feedback(-1, "Ip string was empty. abort.");
+        return feed;
+    }
+    
+    
     sockaddr_in newIp;
     newIp.sin_family = AF_INET;
     int ipResult = inet_pton(AF_INET, newAddress.c_str(), &newIp.sin_addr);
