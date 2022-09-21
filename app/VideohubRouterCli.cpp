@@ -143,7 +143,7 @@ void SetNewRoute() {
     }
 
     ;
-    feed = selected_router->SetRoute(sourceNum, destinationNum);
+    feed = selected_router->SetRoute(destinationNum, sourceNum);
     PrintFeedback();
 }
 
