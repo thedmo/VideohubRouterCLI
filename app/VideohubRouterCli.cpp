@@ -1,6 +1,6 @@
 #include <VideohubRouterCli.h>
 
-//TODO Change Feedback to stack. Add function to read only last Feedback. when Feedback is read out, delete contents
+//TODO Change Feedbackstuff to spdlog for better logging
 
 // METHODS
 void AddNewRouter() {
@@ -213,13 +213,13 @@ void TelnetTest() {
     std::cin.ignore();
     std::getline(std::cin, user_input);
 
-    std::cout << "CLI: sending: " << user_input << std::endl << std::endl;
+    // std::cout << "CLI: sending: " << user_input << std::endl << std::endl;
 
     feed = selected_router->SendMsg(user_input);
     PrintFeedback();
 
-    std::cout << "Response: \n";
-    std::cout << selected_router->GetLastMsg() << std::endl;
+    // std::cout << "CLI: Response: \n";
+    // std::cout << selected_router->GetLastMsg() << std::endl;
 }
 
 // SET UP MENU
