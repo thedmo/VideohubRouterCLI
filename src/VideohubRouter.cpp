@@ -423,12 +423,13 @@ Feedback VideohubRouter::TakeRoutes() {
     route_command += '\n';
 
     feed = tClient->SendMsgToServer(route_command);
-    if (feed.Get_Result() != 0)
-    {
-        return feed;
-    }
+    if (!feed.Ok()) return feed;
 
-    feed = tClient->ReceiveMsgFromServer(response);
+    // Get new routes
+    feed = SendMsg("VIDEO OUTPUT ROUTING:\n\n");
+    if (!feed.Ok()) return feed;
+
+    feed = SetDeviceData();
     if (!feed.Ok()) return feed;
 
     feed.Set_Feedback(0, "New routes taken");
