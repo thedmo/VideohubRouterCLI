@@ -5,7 +5,8 @@ set(LIBRARY_SOURCES
   "Feedback.cc")
 
 set(LIBRARY_INCLUDES
-  "./")
+  "./"
+  "spdlog")
 
 add_library(${LIBRARY_NAME} STATIC
   ${LIBRARY_SOURCES})

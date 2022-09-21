@@ -1,0 +1,2 @@
+[2022-09-21 10:41:43.956] [my_logger] [info] Das ist ein Test. Hallo mitenand :D
+[2022-09-21 10:47:12.015] [my_logger] [info] Das ist ein Test. Hallo mitenand :D

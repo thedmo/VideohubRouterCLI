@@ -5,6 +5,9 @@
 #include <string>
 #include <Feedback.h>
 #include <future>
+#include <spdlog/spdlog.h>
+#include <spdlog/sinks/basic_file_sink.h>
+
 
 class TelnetClient {
 public:
