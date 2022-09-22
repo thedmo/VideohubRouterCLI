@@ -376,10 +376,14 @@ Feedback VideohubRouter::ChangeDestinationName(unsigned int channel,
 
 
     feed = tClient->SendMsgToServer(channel_name_command);
-    if (feed.Get_Result() != 0)
-    {
-        return feed;
-    }
+    if (!feed.Ok()) return feed;
+
+    // Get new Labelnames
+    feed = SendMsg("OUTPUT LABELS:\n\n");
+    if (!feed.Ok()) return feed;
+
+    feed = SetDeviceData();
+    if (!feed.Ok()) return feed;
 
     feed.Set_Feedback(0, "Destination Name changed to " + new_name);
     return feed;
