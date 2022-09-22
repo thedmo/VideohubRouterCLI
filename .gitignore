@@ -2,6 +2,5 @@ build
 bin
 .vs
 .vscode
-stuff
 
-.gitignore
+logs
