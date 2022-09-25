@@ -360,7 +360,6 @@ Feedback VideohubRouter::ChangeSourceName(unsigned int channel,
     return feed;
 }
 
-// TODO: get information from device on Command sent
 Feedback VideohubRouter::ChangeDestinationName(unsigned int channel,
     std::string new_name) {
     if (channel >= destinationCount) {
@@ -409,7 +408,6 @@ Feedback VideohubRouter::SetRoute(int destination, int source) {
     return feed;
 }
 
-// TODO: get information from device on Command sent
 Feedback VideohubRouter::TakeRoutes() {
     std::string route_command = "VIDEO OUTPUT ROUTING:\n";
     std::string currentRoute;
