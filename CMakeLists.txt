@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.16)
 project(VideohubRouterCLI VERSION 0.1.0)
 
+
+include(CTest)
+enable_testing()
+
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY
     ${CMAKE_SOURCE_DIR}/bin)
 
@@ -10,3 +14,7 @@ set(LIBRARY_NAME VideohubCliLib)
 add_subdirectory(src)
 add_subdirectory(app)
 
+
+set(CPACK_PROJECT_NAME ${PROJECT_NAME})
+set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
+include(CPack)
