@@ -1,6 +1,9 @@
 #include <VideohubRouterCli.h>
 
-//TODO Change Feedbackstuff to spdlog for better logging
+//TODO include spdlog in Feedbacklibrary for better logging
+//TODO create/include library for interfacing with sqlite database to store router information
+//TODO feature to save/load routing to/from file
+//TODO add actual cli functionality to call functions from cli instead of working with (or alongside of) menu structure
 
 // METHODS
 void AddNewRouter() {

@@ -6,7 +6,9 @@
 
 //TODO: Cleanup iostream
 
+//TODO: Fix: save friendly name with spaces into device info
 //TODO: Add Locks functionality
+
 
 VideohubRouter::VideohubRouter(std::string ip, Feedback &ref_feed) :
     m_ipAdress(ip) {
