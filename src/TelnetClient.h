@@ -5,8 +5,7 @@
 #include <string>
 #include <Feedback.h>
 #include <future>
-#include <spdlog/spdlog.h>
-#include <spdlog/sinks/basic_file_sink.h>
+
 
 
 class TelnetClient {
@@ -16,11 +15,8 @@ public:
     ~TelnetClient();
 
     Feedback SendMsgToServer(std::string msg);
-    // Feedback SendMsgToServerWithResponse(std::string msg, std::string &response);
 
     Feedback ReceiveMsgFromServer(std::string &response);
-    // std::string ReceiveMsgAsync(const int i);
-
 
     Feedback ChangeIpAddress(std::string newAddress, std::string &init_response);
 
@@ -37,7 +33,6 @@ private:
     SOCKET m_sock;
 
     std::string m_last_data_dump;
-
 
     Feedback OpenConnection();
     Feedback CloseConnection();

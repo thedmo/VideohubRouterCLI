@@ -1,6 +1,4 @@
 #include "TelnetClient.h"
-#include <iostream>
-#include <Windows.h>
 
 auto t_log = spdlog::basic_logger_mt("Telnet client", "logs/TLog.txt");
 
@@ -14,8 +12,6 @@ TelnetClient::TelnetClient(std::string ip, int port, std::string &init_response,
     if (ref_feed.Ok())
     {
         ref_feed = ReceiveMsgFromServer(init_response);
-        // ref_feed = SendMsgToServer("initialize");
-        // init_response = m_last_data_dump;
         m_last_data_dump = init_response;
     }
 }
@@ -26,43 +22,21 @@ std::string ReceiveMsgAsync(TelnetClient *tc)
 {
     std::string retVal;
 
-
-
     tc->ReceiveMsgFromServer(retVal);
 
     return retVal;
 }
 
-Feedback TelnetClient::SendMsgToServer(std::string msg)
-{
-
-    // auto f1 = std::async(ReceiveMsgAsync, this);
-
-    // std::cout << "TelnetClient: sending: " << msg << std::endl;
+Feedback TelnetClient::SendMsgToServer(std::string msg){
     t_log->info("Sending:\n" + msg);
     t_log->flush_on(spdlog::level::debug);
 
     int sendResult = send(m_sock, msg.c_str(), msg.size(), 0);
 
-    // std::sleep(1);
-
-
-    // m_last_data_dump = f1.get();
     ReceiveMsgFromServer(m_last_data_dump);
-
-    // feed.Set_Feedback(0, "Message sent:\n" + msg);
 
     return feed;
 }
-
-// Feedback TelnetClient::SendMsgToServerWithResponse(std::string msg, std::string &response) {
-//     int sendResult = send(m_sock, msg.c_str(), msg.size(), 0);
-//     ReceiveMsgFromServer(response);
-
-//     feed.Set_Feedback(0, "Message sent:\n" + msg);
-
-//     return feed;
-// }
 
 Feedback TelnetClient::ReceiveMsgFromServer(std::string &response)
 {
@@ -70,29 +44,21 @@ Feedback TelnetClient::ReceiveMsgFromServer(std::string &response)
     ZeroMemory(m_buf, 4096);
     int bytesReceived = recv(m_sock, m_buf, 4096, 0);
     std::string s_result = std::string(m_buf, 0, bytesReceived);
-    // t_log->flush_on(spdlog::level::debug);
-    // t_log->info("Received:\n" + s_result);
-    // t_log->flush_on(spdlog::level::debug);
 
     if (s_result.size() != std::string::npos)
     {
         response = s_result;
-        // m_last_data_dump = s_result;
     }
     else
     {
         response.clear();
     }
 
-
     t_log->info("Received:\n" + response);
     t_log->flush_on(spdlog::level::debug);
 
-    feed.Set_Result(0);
-    feed.Set_Message("Bytes received: " + bytesReceived);
-
-    return feed;
-}
+    return Feedback(0, ("Bytes received: " + bytesReceived));
+    }
 
 Feedback TelnetClient::ChangeIpAddress(std::string newAddress, std::string &init_response)
 {

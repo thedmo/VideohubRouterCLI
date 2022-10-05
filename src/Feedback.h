@@ -2,6 +2,8 @@
 #define FEEDBACK
 
 #include <string>
+#include <spdlog/spdlog.h>
+#include <spdlog/sinks/basic_file_sink.h>
 
 class Feedback{
     public:
