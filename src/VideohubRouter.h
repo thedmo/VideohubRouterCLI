@@ -3,7 +3,6 @@
 
 #include <vector>
 #include <Feedback.h>
-
 #include "TelnetClient.h"
 
 struct ChannelStruct {

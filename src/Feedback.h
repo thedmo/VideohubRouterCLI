@@ -5,8 +5,10 @@
 #include <spdlog/spdlog.h>
 #include <spdlog/sinks/basic_file_sink.h>
 
-class Feedback{
-    public:
+
+
+class Feedback {
+public:
 
     Feedback();
     Feedback(int r, std::string s);
@@ -20,33 +22,32 @@ class Feedback{
 
     /**
      * @brief Set values in Feedback object
-     * 
+     *
      * @param i feedback number (e.g. errorcode)
      * @param s feedback message (e.g. errormessage)
      */
     void Set_Feedback(int i, std::string s);
 
     /**
-     * @brief Get Values from feedbackobject  
-     * 
+     * @brief Get Values from feedbackobject
+     *
      * @param i reference to int for result
      * @param s reference to string for resultmessage
      */
     void Get_Feedback(int &i, std::string &s);
 
-    bool Ok(){
+    bool Ok() {
         if (m_result != 0)
         {
             return false;
         }
-        
+
         return true;
     }
 
-    private:
+private:
 
     int m_result = 0;
     std::string m_message = "";
-
 };
 #endif // FEEDBACK

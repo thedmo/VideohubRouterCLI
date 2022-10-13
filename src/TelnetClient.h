@@ -6,8 +6,6 @@
 #include <Feedback.h>
 #include <future>
 
-
-
 class TelnetClient {
 public:
     TelnetClient() = delete;

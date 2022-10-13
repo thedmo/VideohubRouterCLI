@@ -1,12 +1,8 @@
 #include "TelnetClient.h"
 
-auto t_log = spdlog::basic_logger_mt("Telnet client", "logs/TLog.txt");
-
 TelnetClient::TelnetClient(std::string ip, int port, std::string &init_response, Feedback &ref_feed)
     : m_ip_address(ip), m_port(port)
 {
-    t_log->flush_on(spdlog::level::debug);
-    t_log->info("logger for new instance initialized");
 
     ref_feed = OpenConnection();
     if (ref_feed.Ok())
@@ -27,9 +23,7 @@ std::string ReceiveMsgAsync(TelnetClient *tc)
     return retVal;
 }
 
-Feedback TelnetClient::SendMsgToServer(std::string msg){
-    t_log->info("Sending:\n" + msg);
-    t_log->flush_on(spdlog::level::debug);
+Feedback TelnetClient::SendMsgToServer(std::string msg) {
 
     int sendResult = send(m_sock, msg.c_str(), msg.size(), 0);
 
@@ -54,11 +48,8 @@ Feedback TelnetClient::ReceiveMsgFromServer(std::string &response)
         response.clear();
     }
 
-    t_log->info("Received:\n" + response);
-    t_log->flush_on(spdlog::level::debug);
-
     return Feedback(0, ("Bytes received: " + bytesReceived));
-    }
+}
 
 Feedback TelnetClient::ChangeIpAddress(std::string newAddress, std::string &init_response)
 {
