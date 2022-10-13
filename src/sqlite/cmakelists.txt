@@ -1,0 +1,12 @@
+set(SQLITE_INCLUDES
+    "./"
+)
+
+add_library(sqlite STATIC 
+    "sqlite3.c"
+)
+
+target_include_directories(sqlite PUBLIC 
+    ${SQLITE_INCLUDES}
+)
+

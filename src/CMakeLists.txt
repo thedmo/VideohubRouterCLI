@@ -6,14 +6,19 @@ set(LIBRARY_SOURCES
 
 set(LIBRARY_INCLUDES
   "./"
-  "spdlog")
+  "spdlog"
+  "sqlite"
+  )
+
+add_subdirectory(sqlite)
 
 add_library(${LIBRARY_NAME} STATIC
   ${LIBRARY_SOURCES})
 
 if(WIN32)
-  target_link_libraries(${LIBRARY_NAME} wsock32 ws2_32)
+  target_link_libraries(${LIBRARY_NAME} wsock32 ws2_32 sqlite)
 endif()
 
 target_include_directories(${LIBRARY_NAME} PUBLIC
-  ${LIBRARY_INCLUDES})
+  ${LIBRARY_INCLUDES}
+  )
