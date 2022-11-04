@@ -1,3 +1,5 @@
+# 04.11.2022 As of today, this repository is being abandoned because a complete overhaul in structure was made. This means, it is easier to recreate the most part of the code instead of changing everything. Usable parts of this project will be taken over in the new repository.
+
 # VideohubRouterCLI
 
 ---
